@@ -1,0 +1,32 @@
+{
+  "tx_id": "hash of dict with all inputs and outputs",
+  "locktime": "unix time in seconds until outputs are valid",
+  "inputs": [
+    {
+      "previous_output": "Points to corresponding output",
+      "signature_script": "Conditions that satisfy output's pubkey script"
+    },
+    {
+      "previous_output": "Points to corresponding output",
+      "signature_script": "Conditions that satisfy output's pubkey script"
+    },
+    {
+      "previous_output": "Points to corresponding output",
+      "signature_script": "Conditions that satisfy output's pubkey script"
+    }
+  ],
+  "outputs": [
+    {
+      "value": "value of output in 100 millionths of a coin",
+      "pk_script": "Conditions that must be met to redeem this output stored in a list"
+    },
+    {
+      "value": "value of output in 100 millionths of a coin",
+      "pk_script": "Conditions that must be met to redeem this output stored in a list"
+    },
+    {
+      "value": "value of output in 100 millionths of a coin",
+      "pk_script": "Conditions that must be met to redeem this output stored in a list"
+    }
+  ]
+}

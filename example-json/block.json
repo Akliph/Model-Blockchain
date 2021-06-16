@@ -1,0 +1,630 @@
+{
+  "header" : "previous block's hash",
+  "transactions" : [
+    {
+      "tx_id" : "unique identifier via sha256 of all inputs and outputs",
+      "inputs": [
+        {
+          "previous_output" : "None (Has no previous output to point to)",
+          "signature_script" : "None (Has no requirements to meet to generate coins)"
+        }
+      ],
+      "outputs": [
+        {
+          "value" : "value of coinbase reward",
+          "pk_script" : "P2PK of miner"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    },
+    {
+      "tx_id": "hash of dict with all inputs and outputs",
+      "locktime": "unix time in seconds until outputs are valid",
+      "inputs": [
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        },
+        {
+          "previous_output": "Points to corresponding output",
+          "signature_script": "Conditions that satisfy output's pubkey script"
+        }
+      ],
+      "outputs": [
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        },
+        {
+          "value": "value of output in 100 millionths of a coin",
+          "pk_script": "Conditions that must be met to redeem this output stored in a list"
+        }
+      ]
+    }
+  ],
+  "nonce": "append to this block's hash to get a minimum threshold value"
+
+}
