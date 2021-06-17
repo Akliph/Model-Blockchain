@@ -10,3 +10,7 @@ votes cast with computational power contributed to the system. "If you like the 
 you send your blocks to it for validation, therefore endorsing its protocol."
 """
 
+class Node:
+    pass
+
+

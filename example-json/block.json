@@ -1,5 +1,7 @@
 {
   "header" : "previous block's hash",
+  "height" : "int of blocks index in chain",
+  "timestamp" : "unix timestamp in seconds",
   "transactions" : [
     {
       "tx_id" : "unique identifier via sha256 of all inputs and outputs",
@@ -626,5 +628,4 @@
     }
   ],
   "nonce": "append to this block's hash to get a minimum threshold value"
-
 }

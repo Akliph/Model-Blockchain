@@ -28,5 +28,7 @@
       "value": "value of output in 100 millionths of a coin",
       "pk_script": "Conditions that must be met to redeem this output stored in a list"
     }
-  ]
+  ],
+  "user_data" : {"pk" :  "user public key",
+                 "signature" :  "transaction signature"}
 }
