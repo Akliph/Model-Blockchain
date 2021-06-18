@@ -39,7 +39,8 @@ class Blockchain:
         if all:
             all_blocks = []
             for filename in files:
-                all_blocks.append(json.load('./blockchain/' + filename))
+                all_blocks.append(json.load(open('./blockchain/' + filename)), 'r')
+            print(all_blocks)
             return json.dumps(all_blocks)
 
         # If index is specified and header is not then return file at index
