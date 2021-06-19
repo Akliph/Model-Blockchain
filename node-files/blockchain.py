@@ -13,9 +13,9 @@ import json
 
 class Blockchain:
 
+    # Initialization of file paths
     @staticmethod
     def initialize():
-        # Initialization
         # Create blockchain directory
         if not os.path.exists('./blockchain'):
             os.mkdir('./blockchain')
@@ -23,6 +23,7 @@ class Blockchain:
         if not os.path.isfile('./blockchain/0.json'):
             create_genesis()
 
+    # Add a block to the blockchain directory
     @staticmethod
     def add_block(block_dict):
         filename = block_dict['header']
@@ -31,16 +32,19 @@ class Blockchain:
             f.write(json.dumps(block_dict, indent=4))
             f.close()
 
+    # Returns data from the blockchain directory (all blocks, by index, or by header string)
     @staticmethod
-    def get_block(all=False, index=-1, header=None):
+    def get_block(all_blocks=False, index=-1, header=None):
         files = os.listdir('./blockchain')
 
         # Writes all blocks to one json file and returns it
-        if all:
+        if all_blocks:
             all_blocks = []
             for filename in files:
-                all_blocks.append(json.load(open('./blockchain/' + filename)), 'r')
-            print(all_blocks)
+                f = open('./blockchain/' + filename, 'r')
+                f_data = json.loads(f.read())
+                all_blocks.append(f_data)
+                f.close()
             return json.dumps(all_blocks)
 
         # If index is specified and header is not then return file at index
@@ -58,6 +62,7 @@ class Blockchain:
 
         return None
 
+    # Returns a properly formatted json block with default values
     @staticmethod
     def get_block_template():
         # Creates a block template with all of the dict keys
@@ -73,6 +78,7 @@ class Blockchain:
 
         return block_data
 
+    # Returns a properly formatted json transaction with default values
     @staticmethod
     def get_transaction_template():
         # Returns a transaction template with all of the dict keys
@@ -86,6 +92,7 @@ class Blockchain:
 
         return tx_data
 
+    # Returns a hash object of any dict object
     @staticmethod
     def hash_dict(dictionary):
         # Turn dict into string and return its hash

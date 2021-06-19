@@ -15,6 +15,7 @@ Initialization
 
 app = Flask(__name__)
 Blockchain.initialize()
+Node.initialize()
 
 """
 Routing
@@ -25,7 +26,7 @@ Routing
 @app.route('/node/chain/currentchain', methods=['GET'])
 def return_current_chain():
     # returns the entire current blockchain as a json file with code 200
-    chain_data = Blockchain.get_block(all=True)
+    chain_data = Blockchain.get_block(all_blocks=True)
     return chain_data, 200
 
 
@@ -47,6 +48,17 @@ def return_node_id():
     pass
 
 
+@app.route('/node/template/block', methods=['GET'])
+def return_block_template():
+    data = Blockchain.get_block_template()
+    return data
+
+
+@app.route('/node/template/tx', methods=['GET'])
+def return_tx_template():
+    data = Blockchain.get_transaction_template()
+    return data
+
 # [POST] requests
 
 @app.route('/node/chain/submit', methods=['POST'])
@@ -67,7 +79,8 @@ def receive_chain_broadcast():
 def submit_to_mempool():
     # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
     # If not valid it returns string describing error with code 400.
-    pass
+    print(request.json)
+    Node.add_to_mempool(request.json)
 
 
 @app.route('/node/tx/broadcast', methods=['POST'])

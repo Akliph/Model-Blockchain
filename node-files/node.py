@@ -4,13 +4,33 @@ and requests are defined here, and use server.py as an entry point. Dynamic info
 block difficulty, median block time, block difficulty, UTXO(maybe), MEMPOOL, etc. are all calculated and stored
 in a node config file here.
 
+
 **NOTE
 Various user-defined parameters are available via vargs to allow the ledger protocol to change based on
 votes cast with computational power contributed to the system. "If you like the way a node does things,
 you send your blocks to it for validation, therefore endorsing its protocol."
 """
+import os
+import json
+
 
 class Node:
-    pass
+    @staticmethod
+    def initialize():
+        # Create mempool directory
+        if not os.path.isdir('./mempool'):
+            os.mkdir('./mempool')
 
+        if not os.path.isfile('./mempool/mempool.json'):
+            with open('./mempool/mempool.json', 'w+') as f:
+                data = []
+                f.write(json.dumps(data))
+                f.close()
 
+    @staticmethod
+    def add_to_mempool(transaction_dict):
+        with open('./mempool/mempool.json', 'r+') as f:
+            data = json.loads(f.read())
+            data.append(transaction_dict)
+            json.dump(data, f)
+            f.close()
