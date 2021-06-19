@@ -152,3 +152,4 @@ fabric.properties
 
 # Project specific
 node-files/blockchain
+node-files/mempool

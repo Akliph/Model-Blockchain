@@ -82,13 +82,15 @@ class Blockchain:
     @staticmethod
     def get_transaction_template():
         # Returns a transaction template with all of the dict keys
-        tx_data = json.load('/example-json/transaction.json')
+        tx_data = json.load(open('../example-json/transaction.json'))
 
         # Set default transaction data
         tx_data['tx_id'] = 0
         tx_data['locktime'] = 0
         tx_data['inputs'] = []
         tx_data['outputs'] = []
+        tx_data['user_data']['pk'] = 0
+        tx_data['user_data']['signature'] = 0
 
         return tx_data
 

@@ -29,8 +29,16 @@ class Node:
 
     @staticmethod
     def add_to_mempool(transaction_dict):
+
+        # Data validation pass
+
+        # Add to mempool file
         with open('./mempool/mempool.json', 'r+') as f:
-            data = json.loads(f.read())
+            data = json.load(f)
             data.append(transaction_dict)
-            json.dump(data, f)
+            data = json.dumps(data, indent=4)
+            f.seek(0)
+            f.write(data)
+            f.truncate()
             f.close()
+            return True

@@ -79,8 +79,15 @@ def receive_chain_broadcast():
 def submit_to_mempool():
     # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
     # If not valid it returns string describing error with code 400.
-    print(request.json)
-    Node.add_to_mempool(request.json)
+    print(request.get_json(force=True))
+    data = request.get_json(force=True)
+    print(f"Post Request type {type(data)}")
+    res = Node.add_to_mempool(data)
+
+    if res:
+        return 'valid', 200
+    else:
+        return 'invalid', 400
 
 
 @app.route('/node/tx/broadcast', methods=['POST'])
