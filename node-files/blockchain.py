@@ -85,12 +85,14 @@ class Blockchain:
         tx_data = json.load(open('../example-json/transaction.json'))
 
         # Set default transaction data
-        tx_data['tx_id'] = 0
+        tx_data['tx_id'] = ''
         tx_data['locktime'] = 0
-        tx_data['inputs'] = []
-        tx_data['outputs'] = []
-        tx_data['user_data']['pk'] = 0
-        tx_data['user_data']['signature'] = 0
+        tx_data['inputs'][0]['previous_output'] = ''
+        tx_data['inputs'][0]['signature_script'] = ''
+        tx_data['outputs'][0]['value'] = 0
+        tx_data['outputs'][0]['pk_script'] = ''
+        tx_data['user_data']['pk'] = ''
+        tx_data['user_data']['signature'] = ''
 
         return tx_data
 

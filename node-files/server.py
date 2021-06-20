@@ -32,8 +32,8 @@ def return_current_chain():
 
 @app.route('/node/tx/currentmempool', methods=['GET'])
 def return_current_mempool():
-    # returns the entire current mempool as a json file with code 200
-    pass
+    mempool_data = Node.get_tx_from_mempool(all_tx=True)
+    return json.dumps(mempool_data), 200
 
 
 @app.route('/node/info/address', methods=['GET'])
@@ -51,15 +51,16 @@ def return_node_id():
 @app.route('/node/template/block', methods=['GET'])
 def return_block_template():
     data = Blockchain.get_block_template()
-    return data
+    return data, 200
 
 
 @app.route('/node/template/tx', methods=['GET'])
 def return_tx_template():
     data = Blockchain.get_transaction_template()
-    return data
+    return data, 200
 
 # [POST] requests
+
 
 @app.route('/node/chain/submit', methods=['POST'])
 def submit_to_blockchain():
@@ -68,26 +69,25 @@ def submit_to_blockchain():
     pass
 
 
+@app.route('/node/tx/submit', methods=['POST'])
+def submit_to_mempool():
+    # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
+    # If not valid it returns string describing error with code 400.
+    data = request.get_json(force=True)
+    res = Node.add_to_mempool(data)
+
+    # Using the check_equal operator because any data type returns true, but only booleans == True
+    if res and type(res) == bool:
+        return 'valid', 200
+    else:
+        return res, 400
+
+
 @app.route('/node/chain/broadcast', methods=['POST'])
 def receive_chain_broadcast():
     # receives entire blockchain. If other nodes is longer and valid it returns string 'updated' with code 200
     # If not then it returns a string describing error with code 400.
     pass
-
-
-@app.route('/node/tx/submit', methods=['POST'])
-def submit_to_mempool():
-    # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
-    # If not valid it returns string describing error with code 400.
-    print(request.get_json(force=True))
-    data = request.get_json(force=True)
-    print(f"Post Request type {type(data)}")
-    res = Node.add_to_mempool(data)
-
-    if res:
-        return 'valid', 200
-    else:
-        return 'invalid', 400
 
 
 @app.route('/node/tx/broadcast', methods=['POST'])
