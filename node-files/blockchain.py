@@ -109,7 +109,8 @@ def get_transaction_template():
     # Set default transaction data
     tx_data['tx_id'] = ''
     tx_data['locktime'] = 0
-    tx_data['inputs'][0]['previous_output'] = ''
+    tx_data['sender'] = ''
+    tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
     tx_data['outputs'][0]['value'] = 0
     tx_data['outputs'][0]['pk_script'] = ''
@@ -117,6 +118,7 @@ def get_transaction_template():
     tx_data['user_data']['signature'] = ''
 
     return tx_data
+
 
 
 """

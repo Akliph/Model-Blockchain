@@ -39,6 +39,20 @@ def return_current_mempool():
     return json.dumps(mempool_data), 200
 
 
+# Returns a formatted template block as stringified json with code 200
+@app.route('/node/template/block', methods=['GET'])
+def return_block_template():
+    data = blockchain.get_block_template()
+    return data, 200
+
+
+# Returns a formatted template transaction as stringified json with code 200
+@app.route('/node/template/tx', methods=['GET'])
+def return_tx_template():
+    data = blockchain.get_transaction_template()
+    return data, 200
+
+
 # Returns this nodes ip address
 @app.route('/node/info/address', methods=['GET'])
 def return_node_address():
@@ -51,21 +65,6 @@ def return_node_address():
 def return_node_id():
     # returns this nodes UUID as a string with code 200
     pass
-
-
-# Returns a formatted template block as stringified json
-@app.route('/node/template/block', methods=['GET'])
-def return_block_template():
-    data = blockchain.get_block_template()
-    return data, 200
-
-
-# Returns a formatted template transaction as stringified json
-@app.route('/node/template/tx', methods=['GET'])
-def return_tx_template():
-    data = blockchain.get_transaction_template()
-    return data, 200
-
 
 # [POST] requests
 
