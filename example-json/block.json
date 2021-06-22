@@ -40,5 +40,5 @@
                      "signature" :  "transaction signature"}
       }
     ],
-    "nonce": "append to this block's hash to get a minimum threshold value"
+  "nonce": "append to this block's hash to get a minimum threshold value"
   }

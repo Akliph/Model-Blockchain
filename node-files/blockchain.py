@@ -21,18 +21,27 @@ def initialize():
     if not os.path.exists('./blockchain'):
         os.mkdir('./blockchain')
 
-    if not os.path.isfile('./blockchain/0.json'):
+    if not os.path.isfile('./blockchain/blockchain.json'):
+        with open('./blockchain/blockchain.json', 'w+') as f:
+            data = []
+            json.dump(data, f)
+            f.close()
+
         create_genesis()
 
 
 # Writes a seed block with default values to the blockchain directory
 def create_genesis():
-    # If the blockchain dir is empty, create a genesis block with no transactions
+    # If the blockchain json is empty, create a genesis block with no transactions
     template_block = get_block_template()
-    filename = str(template_block['header'])
 
-    with open('./blockchain/' + filename + '.json', 'w+') as f:
-        f.write(json.dumps(template_block, indent=4, sort_keys=True))
+    with open('./blockchain/blockchain.json', 'r+') as f:
+        data = json.load(f)
+        data.append(template_block)
+        data = json.dumps(data, indent=4)
+        f.seek(0)
+        f.write(data)
+        f.truncate()
         f.close()
 
 
@@ -43,38 +52,37 @@ Block getters and setters
 
 # Add a block to the blockchain directory
 def add_block(block_dict):
-    filename = block_dict['header']
-
-    with open(filename + '.json', 'w+') as f:
-        f.write(json.dumps(block_dict, indent=4))
+    with open('./blockchain/blockchain.json', 'r+') as f:
+        data = json.load(f)
+        data.append(block_dict)
+        data = json.dumps(data, indent=4)
+        f.seek(0)
+        f.write(data)
+        f.truncate()
         f.close()
 
 
 # Returns list or dict from the blockchain directory (all blocks, by index, or by header string)
 def get_block(all_blocks=False, index=-1, header=None):
-    files = os.listdir('./blockchain')
-
     # Writes all blocks to one json file and returns it
     if all_blocks:
-        all_blocks = []
-        for filename in files:
-            f = open('./blockchain/' + filename, 'r')
-            f_data = json.loads(f.read())
-            all_blocks.append(f_data)
-            f.close()
-        return all_blocks
+        f = open('./blockchain/blockchain.json', 'r')
+        data = json.loads(f.read())
+        f.close()
+        return data
 
     # If index is specified and header is not then return file at index
     if index >= 0 and header is None:
-        data = json.load(open('./blockchain/' + files[index]))
+        data = json.load(open('./blockchain/blockchain.json', 'r'))
         return data
 
     # If header is specified and index is not then find file with name header
     elif header is not None and index < 0:
-        for filename in files:
-            if filename == header:
-                data = json.load(open('./blockchain/' + filename))
-                return data
+        data = json.load(open('./blockchain/blockchain.json', 'r'))
+        for block in data:
+            if block['header'] == header:
+                return block
+
         return None
 
     return None
@@ -108,7 +116,7 @@ def get_transaction_template():
 
     # Set default transaction data
     tx_data['tx_id'] = ''
-    tx_data['locktime'] = 0
+    tx_data['locktime'] = 0.0
     tx_data['sender'] = ''
     tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
@@ -118,7 +126,6 @@ def get_transaction_template():
     tx_data['user_data']['signature'] = ''
 
     return tx_data
-
 
 
 """

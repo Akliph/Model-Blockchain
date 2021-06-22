@@ -68,6 +68,7 @@ def return_node_id():
 
 # [POST] requests
 
+
 # Returns 200 if the block was valid and adds it to the blockchain, but 400 and an error message if it wasn't
 @app.route('/node/chain/submit', methods=['POST'])
 def submit_to_blockchain():

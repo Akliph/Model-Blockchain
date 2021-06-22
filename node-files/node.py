@@ -91,6 +91,8 @@ def verify_transaction(transaction_dict):
 
     # Nested key check: inputs
     for tx_input in transaction_dict['inputs']:
+        if len(tx_input['previous_output']) != 3:
+            return "All transaction inputs 'previous output' key should contain a list with exactly 3 values"
         for key in list(example_dict['inputs'][0].keys()):
             if key not in list(tx_input.keys()):
                 return f"Key {key} not found in an input of this transaction"
@@ -114,47 +116,71 @@ def verify_transaction(transaction_dict):
     # Input/Output validation
     input_sum = 0
     output_sum = 0
-    coinbase_tx = False
 
     # Inputs validation
     for tx_input in transaction_dict['inputs']:
 
         # If this is the coinbase input make sure its the only input in the transaction
         if transaction_dict['inputs'].index(tx_input) == 0:
-            if tx_input['previous_output'] == 'COINBASE':
-                if len(transaction_dict['inputs']) > 1:
+            if tx_input['previous_output'][0] == 'COINBASE':
+                if len(transaction_dict['inputs']) > 1 or len(transaction_dict['outputs']) > 1:
                     return "The coinbase transaction should only have one input and one output"
                 else:
-                    coinbase_tx = True
+                    return None
+
+        # Check if block containing corresponding output exists
+        output_block_index = 0
+        with open('./blockchain/blockchain.json') as f:
+            data = json.load(f)
+            for block in data:
+                if block['header'] == tx_input['previous_output']:
+                    output_block_index = data.index(block)
+                    data = None
+                    f.close()
                     break
+            if data is None:
+                return f"output file in transaction {transaction_dict['tx_id']} not found"
 
-        # Check if file containing corresponding output exists
-        if not os.path.isfile(tx_input['previous_output'][0] + '.json'):
-            return f"output file in transaction {transaction_dict['tx_id']} not found"
+        # Check that the corresponding output is addressed to the sender of this transaction
+        with open('./blockchain/blockchain.json', 'r') as f:
+            data = json.load(f)
 
-        # Check that the corresponding output is addressed to sender
-        with open(tx_input['previous_output'][0] + '.json', 'r') as f:
-            block = json.load(f)
-            previous_transaction = block[tx_input['previous_output'][1]]
-            previous_output = previous_transaction[tx_input['previous_output'][2]]
+            previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
+            previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
             if previous_output['pk_script'] != transaction_dict['sender']:
-                return f"an output is included in transaction {transaction_dict['tx_id']} " \
-                       f"that is not addressed to sender"
+                return f"An output of transaction {transaction_dict['tx_id']} is not addressed to the sender"
 
-            input_sum += previous_output['value']
+            input_sum += int(previous_output['value'])
             f.close()
+
+        # Check all mempool transactions for double-spend
+        with open('./mempool/mempool.json', 'r') as f:
+            data = json.load(f)
+            for tx in data:
+                for mempool_previous_output in tx['inputs']:
+                    if mempool_previous_output['previous_output'] == tx_input['previous_output']:
+                        return f"Output in transaction [{transaction_dict['tx_id']}] is already redeemed in mempool"
+            f.close()
+
+        # Check all blockchain transactions for double-spend
+        with open('./blockchain/blockchain.json', 'r') as f:
+            data = json.load(f)
+            for block in data:
+                for tx in block['transactions']:
+                    for blockchain_previous_output in tx['inputs']:
+                        if blockchain_previous_output['previous_output'] == tx_input['previous_output']:
+                            return f"Output in transaction [{transaction_dict['tx_id']}] " \
+                                   f"is already redeemed in the blockchain"
 
     # Outputs validation
     for tx_output in transaction_dict['outputs']:
         output_sum += tx_output['value']
 
     # Output of transaction should not exceed input
-    if coinbase_tx:
-        return None
-
     if output_sum > input_sum:
-        return f"The output is greater than the input in transaction {transaction_dict['tx_id']}"
+        return f"The total output [{output_sum}] is greater than the total input [{input_sum}] in " \
+               f"transaction [{transaction_dict['tx_id']}]"
 
     return None
 
@@ -163,17 +189,30 @@ def find_transaction_sum(transaction_dict):
     input_sum = 0
     output_sum = 0
 
-    # Find input sum
     for tx_input in transaction_dict['inputs']:
-        with open(tx_input['previous_output'][0] + '.json', 'r') as f:
-            block = json.load(f)
-            previous_transaction = block[tx_input['previous_output'][1]]
-            previous_output = previous_transaction[tx_input['previous_output'][2]]
-            input_sum += previous_output['value']
+        # Check if block containing corresponding output exists
+        output_block_index = 0
+        with open('./blockchain/blockchain.json') as f:
+            data = json.load(f)
+            for block in data:
+                if block['header'] == tx_input['previous_output']:
+                    output_block_index = data.index(block)
+                    data = None
+                    break
+            if data is None:
+                return f"output file in transaction {transaction_dict['tx_id']} not found"
+
+            # Find input sum
+            data = json.load(f)
+
+            previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
+            previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
+
+            input_sum += int(previous_output['value'])
             f.close()
 
-    for tx_output in transaction_dict['outputs']:
-        output_sum += tx_output['value']
+        for tx_output in transaction_dict['outputs']:
+            output_sum += tx_output['value']
 
     return input_sum, output_sum
 
@@ -196,7 +235,7 @@ def verify_block(block_dict):
             return verification_error
 
     # Check that the first transaction in the block is the coinbase transaction
-    if block_dict['transactions'][0]['inputs'][0] != 'COINBASE':
+    if block_dict['transactions'][0]['inputs'][0]['previous_output'][0] != 'COINBASE':
         return "First transaction in block should be COINBASE transaction"
 
     # Verify that coinbase output has value of block_reward plus fees
@@ -241,7 +280,7 @@ def add_to_mempool(transaction):
     with open('./mempool/mempool.json', 'r+') as f:
         data = json.load(f)
         data.append(transaction)
-        data = json.dumps(data, indent=4)
+        data = json.dumps(data, indent=4, sort_keys=False)
         f.seek(0)
         f.write(data)
         f.truncate()
