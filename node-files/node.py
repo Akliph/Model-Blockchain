@@ -39,12 +39,13 @@ added up. The transaction will only be valid if the value of the inputs is less 
 outputs. The remainder of the inputs should be included in the value of the coinbase transaction's output by the miner.
 """
 
-
 import os
 import json
 import blockchain
 
 block_reward = 1000
+block_difficulty = 2
+block_transaction_threshold = 0
 
 
 def initialize():
@@ -111,8 +112,6 @@ def verify_transaction(transaction_dict):
                 return (f"Dict key {key} is type {type(tx_output[key])}, " +
                         f"not type {type(example_dict['outputs'][0][key])}")
 
-    # RSA signature validation...
-
     # Input/Output validation
     input_sum = 0
     output_sum = 0
@@ -155,12 +154,21 @@ def verify_transaction(transaction_dict):
             f.close()
 
         # Check all mempool transactions for double-spend
-        with open('./mempool/mempool.json', 'r') as f:
+        with open('./mempool/mempool.json', 'r+') as f:
             data = json.load(f)
-            for tx in data:
-                for mempool_previous_output in tx['inputs']:
-                    if mempool_previous_output['previous_output'] == tx_input['previous_output']:
+            for mempool_tx in data:
+
+                # Skip this pass if this is the transaction being verified
+                if mempool_tx == transaction_dict:
+                    del data[data.index(mempool_tx)]
+                    continue
+
+                for mempool_transaction_input in mempool_tx['inputs']:
+                    if mempool_transaction_input['previous_output'] == tx_input['previous_output']:
                         return f"Output in transaction [{transaction_dict['tx_id']}] is already redeemed in mempool"
+            f.seek(0)
+            f.write(json.dumps(data, indent=4))
+            f.truncate()
             f.close()
 
         # Check all blockchain transactions for double-spend
@@ -182,9 +190,49 @@ def verify_transaction(transaction_dict):
         return f"The total output [{output_sum}] is greater than the total input [{input_sum}] in " \
                f"transaction [{transaction_dict['tx_id']}]"
 
+    # RSA signature validation...
+
     return None
 
 
+# Returns a string describing the coinbase transaction verification error, otherwise returns None
+def verify_coinbase_transaction(coinbase_dict):
+    coinbase_example_dict = blockchain.get_coinbase_template()
+    coinbase_example_keys = list(coinbase_example_dict.keys())
+
+    # Root key check
+    for key in coinbase_example_keys:
+        if key not in coinbase_example_keys:
+            return "Not all required keys in coinbase transaction"
+
+        if type(coinbase_example_dict[key]) != type(coinbase_dict[key]):
+            return f"Dict key, {key} should be {type(coinbase_example_dict[key])}, not {type(coinbase_dict[key])}"
+
+    # Nested key check: inputs
+    for key in list(coinbase_example_dict['inputs'][0].keys()):
+        if key not in list(coinbase_example_dict['inputs'][0].keys()):
+            return "Not all required keys in coinbase transaction inputs"
+
+        if type(coinbase_example_dict['inputs'][0][key]) != type(coinbase_dict['inputs'][0][key]):
+            return f"Dict key, {key} should be {type(coinbase_example_dict['inputs'][0][key])}, " \
+                   f"not {type(coinbase_dict['inputs'][0][key])}"
+
+    # Nested key check: outputs
+    for key in list(coinbase_example_dict['outputs'][0].keys()):
+        if key not in list(coinbase_example_dict['outputs'].keys()):
+            return "Not all required keys in coinbase transaction inputs"
+
+        if type(coinbase_example_dict['outputs'][key]) != type(coinbase_dict['outputs'][key]):
+            return f"Dict key, {key} should be {type(coinbase_example_dict['outputs'][key])}, " \
+                   f"not {type(coinbase_dict['outputs'][key])}"
+
+    if len(coinbase_dict['inputs']) != 1 or len(coinbase_dict['outputs'] != 1):
+        return "The coinbase transaction should have exactly one input and one output"
+
+    return None
+
+
+# Returns the input and output sum of the transaction
 def find_transaction_sum(transaction_dict):
     input_sum = 0
     output_sum = 0
@@ -192,19 +240,19 @@ def find_transaction_sum(transaction_dict):
     for tx_input in transaction_dict['inputs']:
         # Check if block containing corresponding output exists
         output_block_index = 0
+        transaction_found = False
         with open('./blockchain/blockchain.json') as f:
             data = json.load(f)
             for block in data:
-                if block['header'] == tx_input['previous_output']:
+                if data.index(block) == tx_input['previous_output'][0]:
                     output_block_index = data.index(block)
-                    data = None
+                    transaction_found = True
                     break
-            if data is None:
-                return f"output file in transaction {transaction_dict['tx_id']} not found"
+
+            if not transaction_found:
+                return 'transaction not found', 400
 
             # Find input sum
-            data = json.load(f)
-
             previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
             previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
@@ -230,9 +278,17 @@ def verify_block(block_dict):
 
     # Verify transaction in blocks
     for transaction in block_dict['transactions']:
+        # Skip this pass for the coinbase transaction
+        if block_dict['transactions'][0] == transaction:
+            continue
+
         verification_error = verify_transaction(transaction)
         if verification_error is not None:
             return verification_error
+
+    # Check for minimum amount of transactions
+    if len(block_dict['transactions']) < block_transaction_threshold:
+        return f"This node requires that a block have at least [{block_transaction_threshold}] transactions"
 
     # Check that the first transaction in the block is the coinbase transaction
     if block_dict['transactions'][0]['inputs'][0]['previous_output'][0] != 'COINBASE':
@@ -243,29 +299,48 @@ def verify_block(block_dict):
     for transaction in block_dict['transactions']:
 
         # Skip this pass for the coinbase transaction
-        if block_dict['transactions'].index(transaction) == 0:
+        if block_dict['transactions'][0] == transaction:
             continue
 
+        # Get the input and output of this transaction
         tx_input_sum, tx_output_sum = find_transaction_sum(transaction)
 
+        # Add the unaccounted difference to the block remainder
         block_remainder += (tx_input_sum - tx_output_sum)
 
+    # Validate data in coinbase transaction
+    verify_coinbase_transaction(block_dict['transactions'][0])
+
     if block_dict['transactions'][0]['outputs'][0]['value'] != block_reward + block_remainder:
-        return "COINBASE transaction should have single output with a value of the block reward plus the" \
-               " remainder of all transactions in the block"
+        return f"COINBASE transaction should have single output with a value of the block reward [{block_reward}] " \
+               f"plus the remainder [{block_remainder}] of all transactions in the block"
 
-    # Check that header matches the previous block
-        # Remove the first transaction in the previous block in the directory, hash it,
-        # and make sure it matches the header of this block
+    # Make sure proof-of-work data included in block is valid
+    with open('./blockchain/blockchain.json') as f:
+        # Check that header matches the previous block
+        data = json.load(f)
 
-    # Check that nonce is valid...
-        # Hash this block without the coinbase transaction and make sure its within the node's threshold
+        # Hash the previous block in the directory
+        previous_block = data[len(data) - 1]
+
+        # Make sure it matches the header of this block
+        previous_block_hash = blockchain.hash_dict(previous_block)
+        if block_dict['header'] != previous_block_hash:
+            return f"Header of block does not match hash [{previous_block_hash}] of previous block"
+
+        # Check that nonce is valid...
+        block_hash = blockchain.hash_dict(block_dict)
+        # Hash this block with the nonce and make sure its within the node's threshold
+        for character in block_hash[:block_difficulty]:
+            if str(character) != '0':
+                return f"Nonce [{block_dict['nonce']}] is invalid, hash of block must " \
+                       f"start with [{block_difficulty}] zeroes"
 
     return None
 
 
 """
-Add data to blockchain once its verified
+Add data to directories
 """
 
 
@@ -285,7 +360,7 @@ def add_to_mempool(transaction):
         f.write(data)
         f.truncate()
         f.close()
-        return True
+        return None
 
 
 # Takes a block dict and adds it to the blockchain if verified
@@ -295,6 +370,7 @@ def add_to_blockchain(block):
         return verification_error
 
     blockchain.add_block(block)
+    return None
 
 
 """
@@ -326,5 +402,23 @@ def get_tx(all_tx=False, index=-1, tx_id=None):
 
     return None
 
-# Find utxo of public key on blockchain
+
+# Returns all of the current node parameters to the miner
+def get_node_parameters():
+    parameters = {
+        'reward': block_reward,
+        'difficulty': block_difficulty,
+        'tx_threshold': block_transaction_threshold
+    }
+
+    return parameters
+
+# Find UTXO of public key on blockchain
+# Iterate through each block in the blockchain
+# Store the indices of each output addressed to the client
+# If the indices are referenced by another output on the blockchain or in the mempool, remove it from the list
+# Go through all of the remaining indices, add the values of the outputs
+# Return a list of all unspent outputs with their indices, along with the total UTXO
+
+
 # Find the maximum hash of the block to adjust the difficulty

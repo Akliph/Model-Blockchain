@@ -9,7 +9,7 @@
       "sender" : "None (Has no sender)",
       "inputs": [
         {
-          "previous_output" : "COINBASE",
+          "previous_output" : ["COINBASE"],
           "signature_script" : "None (Has no requirements to meet to generate coins)"
         }
       ],

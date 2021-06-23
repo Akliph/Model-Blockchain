@@ -27,7 +27,6 @@ Routing
 # Returns the entire current blockchain as stringified json with code 200
 @app.route('/node/chain/currentchain', methods=['GET'])
 def return_current_chain():
-
     chain_data = blockchain.get_block(all_blocks=True)
     return chain_data, 200
 
@@ -53,6 +52,13 @@ def return_tx_template():
     return data, 200
 
 
+# Returns a formatted template transaction as stringified json with code 200
+@app.route('/node/template/coinbase', methods=['GET'])
+def return_coinbase_template():
+    data = blockchain.get_transaction_template()
+    return data, 200
+
+
 # Returns this nodes ip address
 @app.route('/node/info/address', methods=['GET'])
 def return_node_address():
@@ -66,15 +72,26 @@ def return_node_id():
     # returns this nodes UUID as a string with code 200
     pass
 
+
+# Returns the current parameters for this node
+@app.route('/node/info/parameters', methods=['GET'])
+def return_node_parameters():
+    parameters = node.get_node_parameters()
+    return parameters, 200
+
+
 # [POST] requests
 
 
 # Returns 200 if the block was valid and adds it to the blockchain, but 400 and an error message if it wasn't
 @app.route('/node/chain/submit', methods=['POST'])
 def submit_to_blockchain():
-    # sends data to node.py for validation on blockchain. If valid it returns string 'valid' with code 200.
-    # If not valid it returns string describing error with code 400.
-    pass
+    res = node.add_to_blockchain(request.get_json(force=True))
+
+    if res != None:
+        return res, 400
+    else:
+        return 'valid', 200
 
 
 # Returns 200 if the transaction was valid and adds it to the mempool, but 400 and an error message if it wasn't
@@ -85,11 +102,10 @@ def submit_to_mempool():
     data = request.get_json(force=True)
     res = node.add_to_mempool(data)
 
-    # Using the check_equal operator because any data type returns true, but only booleans == True
-    if res and type(res) == bool:
-        return 'valid', 200
-    else:
+    if res != None:
         return res, 400
+    else:
+        return 'valid', 200
 
 
 # Receives an entire stringified blockchain from another node and returns 200 if this node was updated
@@ -110,4 +126,3 @@ def receive_tx_broadcast():
 
 if __name__ == "__main__":
     app.run(debug=True, host='127.0.0.1', port=1337)
-

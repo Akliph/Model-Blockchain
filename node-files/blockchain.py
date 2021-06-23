@@ -66,10 +66,10 @@ def add_block(block_dict):
 def get_block(all_blocks=False, index=-1, header=None):
     # Writes all blocks to one json file and returns it
     if all_blocks:
-        f = open('./blockchain/blockchain.json', 'r')
-        data = json.loads(f.read())
-        f.close()
-        return data
+        with open('./blockchain/blockchain.json', 'r') as f:
+            data = f.read()
+            f.close()
+            return data
 
     # If index is specified and header is not then return file at index
     if index >= 0 and header is None:
@@ -112,7 +112,7 @@ def get_block_template():
 # Returns a properly formatted json transaction with default values
 def get_transaction_template():
     # Returns a transaction template with all of the dict keys
-    tx_data = json.load(open('../example-json/transaction.json'))
+    tx_data = json.load(open('../example-json/transaction.json', 'r'))
 
     # Set default transaction data
     tx_data['tx_id'] = ''
@@ -128,6 +128,20 @@ def get_transaction_template():
     return tx_data
 
 
+# Returns a template of a coinbase transaction
+def get_coinbase_template():
+    coinbase_data = json.load(open('../example-json/coinbase_transaction.json'))
+
+    coinbase_data['tx_id'] = ''
+    coinbase_data['locktime'] = 0.0
+    coinbase_data['sender'] = ''
+    coinbase_data['inputs'][0]['previous_output'] = ['COINBASE']
+    coinbase_data['inputs'][0]['signature_script'] = None
+    coinbase_data['outputs'][0]['value'] = 0
+    coinbase_data['outputs'][0]['pk_script'] = ''
+
+    return coinbase_data
+
 """
 Hashing Functions
 """
@@ -137,6 +151,6 @@ Hashing Functions
 def hash_dict(dictionary):
     # Turn dict into string and return its hash
     dict_data = json.dumps(dictionary, sort_keys=True)
-    dict_hash = sha256(dict_data.encode())
+    dict_hash = sha256(dict_data.encode()).hexdigest()
 
-    return dict_hash
+    return str(dict_hash)

@@ -4,7 +4,7 @@
   "sender": "public key of the user who submitted this transaction",
   "inputs": [
     {
-      "previous_output": ["header of block containing output", "transaction index", "output index"],
+      "previous_output": ["block index", "transaction index", "output index"],
       "signature_script": "Conditions that satisfy output's pubkey script"
     }
   ],
