@@ -153,3 +153,4 @@ fabric.properties
 # Project specific
 node-files/blockchain
 node-files/mempool
+testfiles/client/credentials

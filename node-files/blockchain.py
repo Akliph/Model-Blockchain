@@ -142,6 +142,7 @@ def get_coinbase_template():
 
     return coinbase_data
 
+
 """
 Hashing Functions
 """

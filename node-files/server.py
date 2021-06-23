@@ -8,6 +8,8 @@ from flask import Flask, request
 import json
 import node
 import blockchain
+import rsa
+from pprint import pprint
 
 """
 Initialization
@@ -100,6 +102,8 @@ def submit_to_mempool():
     # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
     # If not valid it returns string describing error with code 400.
     data = request.get_json(force=True)
+    print("DATA AFTER IT GETS TO THE SERVER")
+    pprint(data)
     res = node.add_to_mempool(data)
 
     if res != None:
@@ -122,6 +126,13 @@ def receive_tx_broadcast():
     # receives entire mempool. If other nodes is longer and valid it returns string 'updated' with code 200
     # If not then it returns a string describing error with code 400.
     pass
+
+
+# Responds with list of UTXO
+@app.route('/node/chain/utxo', methods=['POST'])
+def return_utxo():
+    pk_data = request.data.decode('utf-8')
+    return node.get_utxo(pk_data), 200
 
 
 if __name__ == "__main__":

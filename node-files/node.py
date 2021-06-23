@@ -42,10 +42,12 @@ outputs. The remainder of the inputs should be included in the value of the coin
 import os
 import json
 import blockchain
+import rsa
 
 block_reward = 1000
 block_difficulty = 2
-block_transaction_threshold = 0
+block_transaction_minimum = 0
+block_transaction_maximum = 10
 
 
 def initialize():
@@ -112,6 +114,8 @@ def verify_transaction(transaction_dict):
                 return (f"Dict key {key} is type {type(tx_output[key])}, " +
                         f"not type {type(example_dict['outputs'][0][key])}")
 
+    verify_signature(transaction_dict)
+
     # Input/Output validation
     input_sum = 0
     output_sum = 0
@@ -129,16 +133,17 @@ def verify_transaction(transaction_dict):
 
         # Check if block containing corresponding output exists
         output_block_index = 0
+        transaction_found = False
         with open('./blockchain/blockchain.json') as f:
             data = json.load(f)
             for block in data:
-                if block['header'] == tx_input['previous_output']:
+                if data.index(block) == tx_input['previous_output'][0]:
                     output_block_index = data.index(block)
-                    data = None
-                    f.close()
+                    transaction_found = True
                     break
-            if data is None:
-                return f"output file in transaction {transaction_dict['tx_id']} not found"
+
+            if not transaction_found:
+                return None
 
         # Check that the corresponding output is addressed to the sender of this transaction
         with open('./blockchain/blockchain.json', 'r') as f:
@@ -158,7 +163,7 @@ def verify_transaction(transaction_dict):
             data = json.load(f)
             for mempool_tx in data:
 
-                # Skip this pass if this is the transaction being verified
+                # Skip this pass if this is the transaction being verified and remove it from the mempool
                 if mempool_tx == transaction_dict:
                     del data[data.index(mempool_tx)]
                     continue
@@ -190,7 +195,10 @@ def verify_transaction(transaction_dict):
         return f"The total output [{output_sum}] is greater than the total input [{input_sum}] in " \
                f"transaction [{transaction_dict['tx_id']}]"
 
-    # RSA signature validation...
+    # RSA signature validation
+    signing_error = verify_signature(transaction_dict)
+    if signing_error != None:
+        return signing_error
 
     return None
 
@@ -250,7 +258,7 @@ def find_transaction_sum(transaction_dict):
                     break
 
             if not transaction_found:
-                return 'transaction not found', 400
+                return None
 
             # Find input sum
             previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
@@ -287,8 +295,10 @@ def verify_block(block_dict):
             return verification_error
 
     # Check for minimum amount of transactions
-    if len(block_dict['transactions']) < block_transaction_threshold:
-        return f"This node requires that a block have at least [{block_transaction_threshold}] transactions"
+    if len(block_dict['transactions']) - 1 < block_transaction_minimum:
+        return f"This node requires that a block have at least [{block_transaction_minimum}] transaction(s)"
+    elif len(block_dict['transactions']) - 1 > block_transaction_maximum:
+        return f"This node requires that a block have at most [{block_transaction_maximum}] transaction(s)"
 
     # Check that the first transaction in the block is the coinbase transaction
     if block_dict['transactions'][0]['inputs'][0]['previous_output'][0] != 'COINBASE':
@@ -303,7 +313,10 @@ def verify_block(block_dict):
             continue
 
         # Get the input and output of this transaction
-        tx_input_sum, tx_output_sum = find_transaction_sum(transaction)
+        tx_sum = find_transaction_sum(transaction)
+
+        if tx_sum is not None:
+            tx_input_sum, tx_output_sum = tx_sum
 
         # Add the unaccounted difference to the block remainder
         block_remainder += (tx_input_sum - tx_output_sum)
@@ -312,8 +325,9 @@ def verify_block(block_dict):
     verify_coinbase_transaction(block_dict['transactions'][0])
 
     if block_dict['transactions'][0]['outputs'][0]['value'] != block_reward + block_remainder:
-        return f"COINBASE transaction should have single output with a value of the block reward [{block_reward}] " \
-               f"plus the remainder [{block_remainder}] of all transactions in the block"
+        return f"COINBASE transaction should have a single output with a value of the block reward [{block_reward}] " \
+               f"plus the remainder [{block_remainder}] of all transactions " \
+               f"in the block for a total of [{block_remainder + block_reward}]"
 
     # Make sure proof-of-work data included in block is valid
     with open('./blockchain/blockchain.json') as f:
@@ -339,6 +353,20 @@ def verify_block(block_dict):
     return None
 
 
+# Verifies the signature of a transaction
+def verify_signature(transaction_dict):
+    transaction_hash = transaction_dict
+    del transaction_hash['user_data']
+    transaction_hash = blockchain.hash_dict(transaction_hash)
+
+    try:
+        rsa.verify(transaction_hash,
+                   transaction_dict['user_data']['signature'].decode('utf-8'),
+                   rsa.PublicKey.load_pkcs1(transaction_dict['user_data']['pk']))
+    except:
+        return f"Signature of transaction {transaction_dict['tx_id']} is invalid"
+
+
 """
 Add data to directories
 """
@@ -355,7 +383,7 @@ def add_to_mempool(transaction):
     with open('./mempool/mempool.json', 'r+') as f:
         data = json.load(f)
         data.append(transaction)
-        data = json.dumps(data, indent=4, sort_keys=False)
+        data = json.dumps(data, indent=4)
         f.seek(0)
         f.write(data)
         f.truncate()
@@ -408,17 +436,49 @@ def get_node_parameters():
     parameters = {
         'reward': block_reward,
         'difficulty': block_difficulty,
-        'tx_threshold': block_transaction_threshold
+        'tx_minimum': block_transaction_minimum,
+        'tx_maximum': block_transaction_maximum
     }
 
     return parameters
 
+
 # Find UTXO of public key on blockchain
-# Iterate through each block in the blockchain
-# Store the indices of each output addressed to the client
-# If the indices are referenced by another output on the blockchain or in the mempool, remove it from the list
-# Go through all of the remaining indices, add the values of the outputs
-# Return a list of all unspent outputs with their indices, along with the total UTXO
+def get_utxo(public_key):
+    unspent_transactions = []
+    utxo_sum = 0
+
+    with open('./blockchain/blockchain.json') as f:
+        data = json.load(f)
+
+        for block in data:
+            for tx in block['transactions']:
+                tx_output_sum = 0
+                for output in tx['outputs']:
+                    if output['pk_script'] == public_key:
+                        utxo_sum += output['value']
+                        tx_output_sum += output['value']
+                        unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
+                                                     tx['outputs'].index(output)], tx_output_sum))
+
+        f.close()
+
+    utxo_dict = {
+        'transactions': unspent_transactions,
+        'sum': utxo_sum
+    }
+
+    return utxo_dict
 
 
 # Find the maximum hash of the block to adjust the difficulty
+
+
+"""
+Getting key error when trying to delete 'user_data' key from the dict that is hashed to get the message to verify
+in the verify_signature() function.
+
+When you dont delete the 'user_data' key you get a signature verification error. I dont know if its from the fact that
+the signature object was endocded into utf-8 bytes, then into a string so it could send over a post request, or because
+the dict contained within 'user-data' isnt getting deleted so the transaction is getting a different hash 
+"""
