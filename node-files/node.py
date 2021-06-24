@@ -117,6 +117,14 @@ def verify_transaction(transaction_dict):
             if type(example_dict['outputs'][0][key]) != type(tx_output[key]):
                 return (f"Dict key {key} is type {type(tx_output[key])}, " +
                         f"not type {type(example_dict['outputs'][0][key])}")
+        # If an output value is less than 1 raise error
+        if tx_output['value'] < 1:
+            return f"Output {tx_output} cannot have a value of less than 1"
+
+    # Check that transaction ID is a real number
+    if len(transaction_dict['tx_id']) != 32:
+        return f"Transaction id should be a hexadecimal uuid with 32 characters " \
+               f"instead it was {transaction_dict['tx_id']}"
 
     verify_signature(transaction_dict)
 
@@ -472,13 +480,23 @@ def get_utxo(public_key):
 
         for block in data:
             for tx in block['transactions']:
+                # For every transaction output, if it is addressed to this public key, add it to the list
                 tx_output_sum = 0
                 for output in tx['outputs']:
                     if output['pk_script'] == public_key:
-                        utxo_sum += output['value']
                         tx_output_sum += output['value']
                         unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
                                                      tx['outputs'].index(output)], tx_output_sum))
+
+                # For every transaction input, if it already exists on the blockchain and it is in the list, then
+                # remove it from the list
+                for tx_input in tx['inputs']:
+                    for unspent_transaction in unspent_transactions:
+                        if tx_input['previous_output'] == unspent_transaction[0]:
+                            unspent_transactions.remove(unspent_transaction)
+
+        for unspent_transaction in unspent_transactions:
+            utxo_sum += unspent_transaction[1]
 
         f.close()
 

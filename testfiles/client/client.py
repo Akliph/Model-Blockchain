@@ -104,7 +104,7 @@ def create_transaction(outputs, fee):
         if sum_of_inputs >= sum_of_outputs + fee:
             break
 
-    # Pay the remainder to this client's pk
+    # Find the remainder of the client funds
     remainder = sum_of_inputs - (sum_of_outputs + fee)
     for output in outputs:
         transaction['outputs'].append(
@@ -114,12 +114,14 @@ def create_transaction(outputs, fee):
             }
         )
 
-    transaction['outputs'].append(
-        {
-            'value': remainder,
-            'pk_script': PUBKEY
-        }
-    )
+    # Pay the client funds back to this client
+    if remainder > 0:
+        transaction['outputs'].append(
+            {
+                'value': remainder,
+                'pk_script': PUBKEY
+            }
+        )
 
     print(f"Remainder of {remainder} will be payed back to this key ({PUBKEY})")
 
@@ -231,6 +233,7 @@ def create_block():
     coinbase_transaction['inputs'][0]['previous_output'] = ["COINBASE"]
     coinbase_transaction['outputs'][0]['value'] = node_parameters['reward'] + (total_input - total_output)
     coinbase_transaction['outputs'][0]['pk_script'] = PUBKEY
+    coinbase_transaction['tx_id'] = str(uuid4().hex)
 
     # Insert the coinbase transaction at the top of the block
     block['transactions'].insert(0, coinbase_transaction)
@@ -320,9 +323,9 @@ def hash_transaction(transaction):
 
 
 print("UTXO OF THIS CLIENT IS...")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json())
 
-while CLIENT_MODE != 'MINE' and CLIENT_MODE != 'TRANSACT':
+while CLIENT_MODE != 'MINE' and CLIENT_MODE != 'TRANSACT' and CLIENT_MODE != 'CANCEL':
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
     print("Client mode: " + CLIENT_MODE)
 
@@ -389,3 +392,8 @@ if CLIENT_MODE == 'TRANSACT':
 
     print("[RESPONSE]")
     print(res.text)
+
+print("UTXO OF ADDRESS (1): ")
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
+print("UTXO OF ADDRESS (2): ")
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json())
