@@ -3,6 +3,7 @@ Have nodes account for locktime on transactions
 
 CHAIN--
 Have blocks contain information about how long they took to mine
+Have the coin round up to the nearest hundredth so that fractions of coins can be used
 
 NODE--
 --INITIALIZATION INTO THE NETWORK

@@ -45,7 +45,7 @@ import blockchain
 from Crypto.PublicKey import RSA
 
 block_reward = 1000
-block_difficulty = 5
+block_difficulty = 3
 block_transaction_minimum = 0
 block_transaction_maximum = 10
 

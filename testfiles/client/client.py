@@ -13,7 +13,7 @@ from uuid import uuid4
 from sys import argv
 
 NODE_URL = 'http://127.0.0.1:1337/'
-CLIENT_MODE = 'MINER'
+CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
 PUBKEY, PRIVKEY, EXPKEY = (None, None, None)
 
@@ -65,6 +65,7 @@ Transaction Submission
 """
 
 
+# Creates a new transaction dict
 def create_transaction(outputs, fee):
     # output = [value, pk]
     # Find and store utxo of this client's pk
@@ -141,6 +142,11 @@ def sign_transaction(transaction, transaction_hash):
     transaction['user_data']['signature'] = signature
 
     return transaction
+
+
+# Creates a new transaction output
+def create_transaction_output(value, receiver):
+    return [value, receiver]
 
 
 """
@@ -235,7 +241,7 @@ def create_block():
     print("--------------------")
 
     # Find the nonce based on this nodes block difficulty
-    mining_timer = 3
+    mining_timer = 2
     hash_string = ""
     for i in range(node_parameters['difficulty']):
         hash_string += "0"
@@ -245,7 +251,7 @@ def create_block():
         sleep(1)
 
     while hash_dict(block)[:node_parameters['difficulty']] != hash_string:
-        print(f"Nonce: {block['nonce']} :: Hash: {hash_dict(block)}")
+        print(f"Nonce: {block['nonce']} ")
         block['nonce'] += 1
 
     print("HASH FOUND--")
@@ -313,26 +319,73 @@ def hash_transaction(transaction):
     return dict_hash
 
 
-create_block()
-
 print("UTXO OF THIS CLIENT IS...")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
 
+while CLIENT_MODE != 'MINE' and CLIENT_MODE != 'TRANSACT':
+    CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
+    print("Client mode: " + CLIENT_MODE)
 
-"""
-tx = create_transaction([(10, 0), (20, 1)], 0)
+if CLIENT_MODE == 'MINE':
+    print("Constructing Block...")
+    sleep(0.5)
+    create_block()
 
-if len(tx) == 2 and type(tx) is tuple:
-    tx = sign_transaction(tx[0], tx[1])
-    print(f"Transaction submitted: {json.dumps(tx, indent=4)}")
-else:
-    print(f"[ERROR]: {tx}")
+if CLIENT_MODE == 'TRANSACT':
+    output_count = None
+    output_list = []
+    transaction_fee = None
 
+    # Get the amount of outputs in this transaction
+    while type(output_count) is not int:
+        try:
+            output_count = int(input("Enter the number of outputs in your transaction: "))
+        except:
+            print("Enter a whole number...")
+            continue
+        break
 
-print("Transaction Signed...")
+    # Add all outputs to output list
+    for j in range(output_count):
+        output_value = None
+        output_receiver = None
 
-res = requests.post(f"{NODE_URL}/node/tx/submit", json.dumps(tx))
+        while type(output_value) is not int:
+            try:
+                output_value = int(input("Enter the value of this output as a whole number: "))
+            except:
+                print("Enter a whole number...")
+                continue
 
-print("[RESPONSE]")
-print(res.text)
-"""
+        while type(output_receiver) is not int:
+            try:
+                output_receiver = int(input("Enter the recipient's address as a whole number: "))
+            except:
+                print("Enter a whole number address...")
+                continue
+
+        output_list.append(create_transaction_output(output_value, output_receiver))
+
+    # Get the desired mining fee
+    while type(transaction_fee) is not int:
+        try:
+            transaction_fee = int(input("Enter a whole number for the mining fee: "))
+        except:
+            print("Enter a whole number address...")
+            continue
+        break
+
+    final_transaction = create_transaction(output_list, transaction_fee)
+
+    if len(final_transaction) == 2 and type(final_transaction) is tuple:
+        final_transaction = sign_transaction(final_transaction[0], final_transaction[1])
+        print(f"Transaction submitted: {json.dumps(final_transaction, indent=4)}")
+    else:
+        print(f"[ERROR]: {final_transaction}")
+
+    print("Transaction Signed...")
+
+    res = requests.post(f"{NODE_URL}/node/tx/submit", json.dumps(final_transaction))
+
+    print("[RESPONSE]")
+    print(res.text)
