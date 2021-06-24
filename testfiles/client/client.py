@@ -10,9 +10,8 @@ from hashlib import sha256
 from pprint import pprint
 from time import sleep
 from uuid import uuid4
-from sys import argv
 
-NODE_URL = 'http://127.0.0.1:1337/'
+NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
 PUBKEY, PRIVKEY, EXPKEY = (None, None, None)
