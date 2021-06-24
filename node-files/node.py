@@ -45,8 +45,8 @@ import blockchain
 from Crypto.PublicKey import RSA
 
 block_reward = 1000
-block_difficulty = 2
-block_transaction_minimum = 1
+block_difficulty = 5
+block_transaction_minimum = 0
 block_transaction_maximum = 10
 
 
@@ -305,6 +305,11 @@ def verify_block(block_dict):
         if verification_error is not None:
             return verification_error
 
+    # Verify that block height is correct
+    current_chain = json.loads(blockchain.get_block(all_blocks=True))
+    if block_dict['height'] != current_chain[-1]['height'] + 1:
+        return "Block should contain block height of index in blockchain"
+
     # Check for minimum amount of transactions
     if len(block_dict['transactions']) - 1 < block_transaction_minimum:
         return f"This node requires that a block have at least [{block_transaction_minimum}] transaction(s)"
@@ -315,7 +320,7 @@ def verify_block(block_dict):
     if block_dict['transactions'][0]['inputs'][0]['previous_output'][0] != 'COINBASE':
         return "First transaction in block should be COINBASE transaction"
 
-    # Verify that coinbase output has value of block_reward plus fees
+    # Find the block fees
     block_remainder = 0
     for transaction in block_dict['transactions']:
 
@@ -335,6 +340,7 @@ def verify_block(block_dict):
     # Validate data in coinbase transaction
     verify_coinbase_transaction(block_dict['transactions'][0])
 
+    # Ensure coinbase output has a value of fees + reward
     if block_dict['transactions'][0]['outputs'][0]['value'] != block_reward + block_remainder:
         return f"COINBASE transaction should have a single output with a value of the block reward [{block_reward}] " \
                f"plus the remainder [{block_remainder}] of all transactions " \

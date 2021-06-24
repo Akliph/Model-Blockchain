@@ -1,0 +1,28 @@
+TX--
+Have nodes account for locktime on transactions
+
+CHAIN--
+Have blocks contain information about how long they took to mine
+
+NODE--
+--INITIALIZATION INTO THE NETWORK
+Have an initialization phase where a node requests the blockchain from another known node and verifies the whole thing
+Have the node request all known nodes from that node
+Once the first verification pass is done, keep requesting the chain from that node and verifying new additions until it is all caught up
+It should tune its parameters accordingly once done
+^
+Repeat this process for new nodes found until the longest chain is the default one on this node
+
+If a node is initializing with this node, add the new node to the list of known nodes
+
+--PROPAGATING RECEIVED DATA
+When a node receives a new block or transaction post its chain or transaction to all known nodes' /broadcast endpoint
+This goes for when a node receives new data from the /broadcast endpoint, not just the /submit endpoint
+
+--HANDLING INCOMING NETWORK DATA
+If a block receives a new version of the chain store it in a separately named json file in ./blockchain
+If that chain is longer than this one by {x} amount and it is valid, replace the default chain with the one just received
+
+If a block receives a new transaction verify it
+If the transaction is not already in the mempool, add it to the mempool
+

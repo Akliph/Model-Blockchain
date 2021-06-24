@@ -195,6 +195,7 @@ def create_block():
     # Request a new block template
     block = requests.get(f"{NODE_URL}/node/template/block").json()
     block['header'] = last_block_hash
+    block['height'] = last_block['height'] + 1
     print("REQUESTED NEW BLOCK TEMPLATE--")
     pprint(block)
     print("-------------------")
@@ -312,7 +313,7 @@ def hash_transaction(transaction):
     return dict_hash
 
 
-# create_block()
+create_block()
 
 print("UTXO OF THIS CLIENT IS...")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
