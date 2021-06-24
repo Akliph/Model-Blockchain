@@ -102,8 +102,6 @@ def submit_to_mempool():
     # sends data to node.py for validation in mempool. If valid it returns string 'valid' with code 200.
     # If not valid it returns string describing error with code 400.
     data = request.get_json(force=True)
-    print("DATA AFTER IT GETS TO THE SERVER")
-    pprint(data)
     res = node.add_to_mempool(data)
 
     if res != None:
@@ -131,7 +129,10 @@ def receive_tx_broadcast():
 # Responds with list of UTXO
 @app.route('/node/chain/utxo', methods=['POST'])
 def return_utxo():
-    pk_data = request.data.decode('utf-8')
+    try:
+        pk_data = int(request.data)
+    except:
+        return "Submit a string containing a public key int"
     return node.get_utxo(pk_data), 200
 
 

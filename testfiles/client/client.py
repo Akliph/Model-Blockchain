@@ -3,7 +3,7 @@ This file is meant to be a fully working mining client to interact with the REST
 directory. Other client software can be written to mine and transact with the API however.
 """
 import json
-import rsa
+from Crypto.PublicKey import RSA
 import os
 import requests
 from hashlib import sha256
@@ -15,41 +15,50 @@ from sys import argv
 NODE_URL = 'http://127.0.0.1:1337/'
 CLIENT_MODE = 'MINER'
 TRANSACTION_GOAL = 10
-PUBKEY, PRIVKEY = (None, None)
+PUBKEY, PRIVKEY, EXPKEY = (None, None, None)
 
 if not os.path.exists('./credentials'):
-    PUBKEY, PRIVKEY = rsa.newkeys(512)
+    print("Generating new keys...")
+    keys = RSA.generate(bits=2048)
+    print("2048 bit keys have been generated...")
+
+    EXPKEY = keys.e
+    PRIVKEY = keys.d
+    PUBKEY = keys.n
 
     # Create the directory
     os.mkdir('./credentials')
 
     # Create new file and close it
-    f = open('./credentials/private-key.pem', 'w+')
-    f.close()
+    with open('./credentials/key.pem', 'wb+') as f:
+        passcode = str(input("Please enter a password to encode your keys (THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
+        f.write(keys.export_key('PEM', passphrase=passcode))
+        f.close()
 
-    # Open the file in write-bytes mode and securely store the sk
-    priv_key_file = open('./credentials/private-key.pem', 'wb+')
-    priv_key_file.write(PRIVKEY.save_pkcs1('PEM'))
-    priv_key_file.close()
-
-    # Create new file and close it
-    f = open('./credentials/public-key.pem', 'w+')
-    f.close()
-
-    # Open the file in write-bytes mode and securely store the pk
-    priv_key_file = open('./credentials/public-key.pem', 'wb+')
-    priv_key_file.write(PUBKEY.save_pkcs1('PEM'))
-    priv_key_file.close()
+    print("Keys written...")
 
 else:
-    with open('./credentials/private-key.pem', 'rb') as f:
-        keydata = f.read()
-        PRIVKEY = rsa.PrivateKey.load_pkcs1(keydata)
+    with open('./credentials/key.pem', 'r') as f:
+        print("Reading Keys...")
+        while True:
+            try:
+                passcode = str(input("Please enter your password: "))
+                keys = RSA.import_key(f.read(), passphrase=passcode)
+            except:
+                print("Wrong password, please try again.")
+                continue
+            break
+
         f.close()
-    with open('./credentials/public-key.pem', 'rb') as f:
-        keydata = f.read()
-        PUBKEY = rsa.PublicKey.load_pkcs1(keydata)
-        f.close()
+
+    EXPKEY = keys.e
+    PRIVKEY = keys.d
+    PUBKEY = keys.n
+
+    print("Keys loaded")
+
+print(f"Your public key is: {PUBKEY}")
+print(f"Your exponent is:  {EXPKEY}")
 
 """
 Transaction Submission
@@ -59,7 +68,8 @@ Transaction Submission
 def create_transaction(outputs, fee):
     # output = [value, pk]
     # Find and store utxo of this client's pk
-    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', PUBKEY.save_pkcs1().decode('utf-8')).json()
+    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', str(PUBKEY)).json()
+    print("UTXO of this key")
     pprint(utxo)
 
     # Get a transaction template
@@ -93,10 +103,6 @@ def create_transaction(outputs, fee):
         if sum_of_inputs >= sum_of_outputs + fee:
             break
 
-    print("INPUTS ADDED TO TRANSACTION..")
-    pprint(transaction['inputs'])
-    print("--------------------")
-
     # Pay the remainder to this client's pk
     remainder = sum_of_inputs - (sum_of_outputs + fee)
     for output in outputs:
@@ -110,39 +116,31 @@ def create_transaction(outputs, fee):
     transaction['outputs'].append(
         {
             'value': remainder,
-            'pk_script': PUBKEY.save_pkcs1().decode('utf-8')
+            'pk_script': PUBKEY
         }
     )
 
-    print("OUTPUTS ADDED TO TRANSACTION..")
-    pprint(transaction['outputs'])
-    print(f"The remainder of the inputs is {remainder} which is paid back to this key")
-    print("--------------------")
+    print(f"Remainder of {remainder} will be payed back to this key ({PUBKEY})")
 
     # Fill out the remainder fields
-    transaction['sender'] = PUBKEY.save_pkcs1().decode('utf-8')
+    transaction['sender'] = PUBKEY
     transaction['tx_id'] = str(uuid4().hex)
 
     # Remove the user data object and create a hash of the transaction
-
-    transaction_hash = transaction
+    transaction_hash = transaction.copy()
     del transaction_hash['user_data']
-    transaction_hash = hash_dict(transaction_hash)
-    sig = rsa.sign(transaction_hash.encode('utf-8'), PRIVKEY, 'SHA-256')
-    # print("TRANSACTION SIGNED..")
-    # print(str(sig))
+    transaction_hash = hash_transaction(transaction_hash)
 
-    # Sign the transaction in the user data object and add it back
-    user_data = {
-        'pk': PUBKEY.save_pkcs1().decode('utf-8'),
-        'signature': str(sig)
-    }
-    transaction['user_data'] = user_data
+    return transaction, transaction_hash
 
-    pprint(transaction)
-    # Submit the transaction
-    signing_result = requests.post(f"{NODE_URL}/node/tx/submit", json.dumps(transaction))
-    print(signing_result.text)
+
+# Add a user_data dict to the end of the transaction with a valid signature
+def sign_transaction(transaction, transaction_hash):
+    signature = pow(int.from_bytes(transaction_hash, byteorder='big'), PRIVKEY, PUBKEY)
+    transaction['user_data']['pk'] = [PUBKEY, EXPKEY]
+    transaction['user_data']['signature'] = signature
+
+    return transaction
 
 
 """
@@ -225,7 +223,7 @@ def create_block():
     # Make the value of the coinbase transaction output equal to the block reward plus the block fees
     coinbase_transaction['inputs'][0]['previous_output'] = ["COINBASE"]
     coinbase_transaction['outputs'][0]['value'] = node_parameters['reward'] + (total_input - total_output)
-    coinbase_transaction['outputs'][0]['pk_script'] = PUBKEY.save_pkcs1('PEM').decode('utf-8')
+    coinbase_transaction['outputs'][0]['pk_script'] = PUBKEY
 
     # Insert the coinbase transaction at the top of the block
     block['transactions'].insert(0, coinbase_transaction)
@@ -297,7 +295,7 @@ def find_transaction_sum(transaction_dict, current_chain):
     return input_sum, output_sum
 
 
-# Returns a hash object of any dict object
+# Returns a hash hex digest of any dict object
 def hash_dict(dictionary):
     # Turn dict into string and return its hash
     dict_data = json.dumps(dictionary, sort_keys=True)
@@ -306,8 +304,34 @@ def hash_dict(dictionary):
     return str(dict_hash)
 
 
-#create_block()
-create_transaction([(10, '0')], 0)
-#print("REQUESTING UTXO...")
-#res = requests.post(f'{NODE_URL}/node/chain/utxo', PUBKEY.save_pkcs1().decode('utf-8'))
-#print(res.json())
+# Returns a hash digest of any dict object
+def hash_transaction(transaction):
+    tx_data = json.dumps(transaction, sort_keys=True)
+    dict_hash = sha256(tx_data.encode()).digest()
+
+    return dict_hash
+
+
+# create_block()
+
+print("UTXO OF THIS CLIENT IS...")
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
+
+
+"""
+tx = create_transaction([(10, 0), (20, 1)], 0)
+
+if len(tx) == 2 and type(tx) is tuple:
+    tx = sign_transaction(tx[0], tx[1])
+    print(f"Transaction submitted: {json.dumps(tx, indent=4)}")
+else:
+    print(f"[ERROR]: {tx}")
+
+
+print("Transaction Signed...")
+
+res = requests.post(f"{NODE_URL}/node/tx/submit", json.dumps(tx))
+
+print("[RESPONSE]")
+print(res.text)
+"""

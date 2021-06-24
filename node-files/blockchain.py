@@ -117,13 +117,13 @@ def get_transaction_template():
     # Set default transaction data
     tx_data['tx_id'] = ''
     tx_data['locktime'] = 0.0
-    tx_data['sender'] = ''
+    tx_data['sender'] = 0
     tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
     tx_data['outputs'][0]['value'] = 0
-    tx_data['outputs'][0]['pk_script'] = ''
-    tx_data['user_data']['pk'] = ''
-    tx_data['user_data']['signature'] = ''
+    tx_data['outputs'][0]['pk_script'] = 0
+    tx_data['user_data']['pk'] = []
+    tx_data['user_data']['signature'] = 0
 
     return tx_data
 
@@ -155,3 +155,11 @@ def hash_dict(dictionary):
     dict_hash = sha256(dict_data.encode()).hexdigest()
 
     return str(dict_hash)
+
+
+# Returns a hash digest of any dict object
+def hash_transaction(transaction):
+    tx_data = json.dumps(transaction, sort_keys=True)
+    dict_hash = sha256(tx_data.encode()).digest()
+
+    return dict_hash

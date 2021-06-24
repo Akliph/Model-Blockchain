@@ -42,11 +42,11 @@ outputs. The remainder of the inputs should be included in the value of the coin
 import os
 import json
 import blockchain
-import rsa
+from Crypto.PublicKey import RSA
 
 block_reward = 1000
 block_difficulty = 2
-block_transaction_minimum = 0
+block_transaction_minimum = 1
 block_transaction_maximum = 10
 
 
@@ -69,6 +69,10 @@ Data verification
 
 # Returns a string describing the transaction verification error, otherwise returns None
 def verify_transaction(transaction_dict):
+    # Verify that the data is a dict
+    if type(transaction_dict) is not dict:
+        return "Must submit a stringified python dict!"
+
     # Data formatting validation
     transaction_keys = list(transaction_dict.keys())
     example_dict = blockchain.get_transaction_template()
@@ -205,6 +209,10 @@ def verify_transaction(transaction_dict):
 
 # Returns a string describing the coinbase transaction verification error, otherwise returns None
 def verify_coinbase_transaction(coinbase_dict):
+    # Verify that the data is a dict
+    if type(coinbase_dict) is not dict:
+        return "Must submit a stringified python dict!"
+
     coinbase_example_dict = blockchain.get_coinbase_template()
     coinbase_example_keys = list(coinbase_example_dict.keys())
 
@@ -275,6 +283,9 @@ def find_transaction_sum(transaction_dict):
 
 # Returns a string describing the block verification error, otherwise returns None
 def verify_block(block_dict):
+    # Verify that the data is a dict
+    if type(block_dict) is not dict:
+        return "Must submit a stringified python dict!"
     block_keys = list(block_dict.keys())
     example_dict = blockchain.get_block_template()
     example_keys = list(example_dict.keys())
@@ -355,16 +366,18 @@ def verify_block(block_dict):
 
 # Verifies the signature of a transaction
 def verify_signature(transaction_dict):
-    transaction_hash = transaction_dict
+    transaction_hash = transaction_dict.copy()
     del transaction_hash['user_data']
-    transaction_hash = blockchain.hash_dict(transaction_hash)
+    transaction_hash = blockchain.hash_transaction(transaction_hash)
 
-    try:
-        rsa.verify(transaction_hash,
-                   transaction_dict['user_data']['signature'].decode('utf-8'),
-                   rsa.PublicKey.load_pkcs1(transaction_dict['user_data']['pk']))
-    except:
-        return f"Signature of transaction {transaction_dict['tx_id']} is invalid"
+    hash_from_signature = pow(transaction_dict['user_data']['signature'],
+                              transaction_dict['user_data']['pk'][1],
+                              transaction_dict['user_data']['pk'][0])
+
+    if int.from_bytes(transaction_hash, byteorder='big') != hash_from_signature:
+        return "Transaction signature is invalid"
+
+    return None
 
 
 """
@@ -472,13 +485,3 @@ def get_utxo(public_key):
 
 
 # Find the maximum hash of the block to adjust the difficulty
-
-
-"""
-Getting key error when trying to delete 'user_data' key from the dict that is hashed to get the message to verify
-in the verify_signature() function.
-
-When you dont delete the 'user_data' key you get a signature verification error. I dont know if its from the fact that
-the signature object was endocded into utf-8 bytes, then into a string so it could send over a post request, or because
-the dict contained within 'user-data' isnt getting deleted so the transaction is getting a different hash 
-"""

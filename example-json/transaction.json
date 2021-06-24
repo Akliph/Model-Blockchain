@@ -5,15 +5,15 @@
   "inputs": [
     {
       "previous_output": ["block index", "transaction index", "output index"],
-      "signature_script": "Conditions that satisfy output's pubkey script"
+      "signature_script": "Conditions that satisfy output's pubkey script [PUBKEY]"
     }
   ],
   "outputs": [
     {
       "value": "value of output in 100ths of a coin",
-      "pk_script": "Conditions that must be met to redeem this output stored in a list"
+      "pk_script": "Conditions that must be met to redeem this output stored in a list [PUBKEY]"
     }
   ],
-  "user_data" : {"pk" :  "user public key",
+  "user_data" : {"pk" :  "user public key [PUBKEY, EXPKEY]",
                  "signature" :  "transaction signature"}
 }
