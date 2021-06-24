@@ -83,10 +83,6 @@ def create_transaction(outputs, fee):
     for output in outputs:
         sum_of_outputs += output[0]
 
-    # Check if the sum of all outputs is more than the entire sum of this client's UTXO
-    if sum_of_outputs + fee > utxo['sum']:
-        return f"Transaction failed, your account has [{utxo['sum']}] and the total output is [{sum_of_outputs}]"
-
     # Keep adding inputs until the sum is equal to or greater than the output
     # Keep track of the remainder so you can pay it back to yourself
     sum_of_inputs = 0
@@ -393,6 +389,8 @@ if CLIENT_MODE == 'TRANSACT':
     print("[RESPONSE]")
     print(res.text)
 
+print("CURRENT BALANCE: ")
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json())
 print("UTXO OF ADDRESS (1): ")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
 print("UTXO OF ADDRESS (2): ")

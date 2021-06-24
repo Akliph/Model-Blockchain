@@ -481,8 +481,8 @@ def get_utxo(public_key):
         for block in data:
             for tx in block['transactions']:
                 # For every transaction output, if it is addressed to this public key, add it to the list
-                tx_output_sum = 0
                 for output in tx['outputs']:
+                    tx_output_sum = 0
                     if output['pk_script'] == public_key:
                         tx_output_sum += output['value']
                         unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
