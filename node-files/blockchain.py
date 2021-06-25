@@ -35,7 +35,7 @@ def create_genesis():
     # If the blockchain json is empty, create a genesis block with no transactions
     template_block = get_block_template()
 
-    with open('./blockchain/blockchain.json', 'r+') as f:
+    with open('./blockchain/blockchain.json', 'w+') as f:
         data = json.load(f)
         data.append(template_block)
         data = json.dumps(data, indent=4)
