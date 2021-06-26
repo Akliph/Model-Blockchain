@@ -20,7 +20,7 @@ blockchain.initialize()
 if len(argv) < 4:
     node.initialize()
 else:
-    node.initialize(argv[1], argv[2], argv[3])
+    node.initialize(int(argv[1]), int(argv[2]), int(argv[3]))
 
 """
 Routing
