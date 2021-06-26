@@ -42,15 +42,28 @@ outputs. The remainder of the inputs should be included in the value of the coin
 import os
 import json
 import blockchain
-from Crypto.PublicKey import RSA
 
 block_reward = 1000
-block_difficulty = 10
-block_transaction_minimum = 0
-block_transaction_maximum = 10
+block_difficulty = None
+block_transaction_minimum = None
+block_transaction_maximum = None
 
 
-def initialize():
+# Create directories and assign node parameters
+def initialize(difficulty=1, tx_min=0, tx_max=10):
+    # Setting the values of the node parameters
+    # (I know using global state is bad but these arent constants and need to be accessible by this entire module...)
+    # (in order for it to adjust over time. So for this purpose I think global state is a reasonable design choice.)
+    # (And idk when nodes start communicating with each other this will probably be removed in place of nodes just...)
+    # (calculating the parameters based on the current state of the blockchain.cd)
+    global block_difficulty
+    global block_transaction_minimum
+    global block_transaction_maximum
+
+    block_difficulty = difficulty
+    block_transaction_minimum = tx_min
+    block_transaction_maximum = tx_max
+
     # Create mempool directory
     if not os.path.isdir('./mempool'):
         os.mkdir('./mempool')
@@ -63,7 +76,7 @@ def initialize():
 
 
 """
-Data verification
+Data Verification
 """
 
 
@@ -126,7 +139,9 @@ def verify_transaction(transaction_dict):
         return f"Transaction id should be a hexadecimal uuid with 32 characters " \
                f"instead it was {transaction_dict['tx_id']}"
 
-    verify_signature(transaction_dict)
+    # Sender value should be equal to PK
+    if transaction_dict['sender'] is not transaction_dict['pk'][0]:
+        return f"Sender in transaction [{transaction_dict['sender']}] should be equal to public key in user data"
 
     # Input/Output validation
     input_sum = 0
@@ -209,7 +224,7 @@ def verify_transaction(transaction_dict):
 
     # RSA signature validation
     signing_error = verify_signature(transaction_dict)
-    if signing_error != None:
+    if signing_error is not None:
         return signing_error
 
     return None
@@ -363,12 +378,12 @@ def verify_block(block_dict):
         previous_block = data[len(data) - 1]
 
         # Make sure it matches the header of this block
-        previous_block_hash = blockchain.hash_dict(previous_block)
+        previous_block_hash = blockchain.hash_dict_hex(previous_block)
         if block_dict['header'] != previous_block_hash:
             return f"Header of block does not match hash [{previous_block_hash}] of previous block"
 
         # Check that nonce is valid...
-        block_hash = blockchain.hash_dict(block_dict)
+        block_hash = blockchain.hash_dict_hex(block_dict)
         # Hash this block with the nonce and make sure its within the node's threshold
         for character in block_hash[:block_difficulty]:
             if str(character) != '0':
@@ -382,7 +397,7 @@ def verify_block(block_dict):
 def verify_signature(transaction_dict):
     transaction_hash = transaction_dict.copy()
     del transaction_hash['user_data']
-    transaction_hash = blockchain.hash_transaction(transaction_hash)
+    transaction_hash = blockchain.hash_dict_bytes(transaction_hash)
 
     hash_from_signature = pow(transaction_dict['user_data']['signature'],
                               transaction_dict['user_data']['pk'][1],

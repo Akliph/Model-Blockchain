@@ -8,10 +8,11 @@ import os
 import requests
 from hashlib import sha256
 from pprint import pprint
+import time
 from time import sleep
 from uuid import uuid4
 
-NODE_URL = 'http://127.0.0.1:1337/'
+NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
 PUBKEY, PRIVKEY, EXPKEY = (None, None, None)
@@ -248,11 +249,13 @@ def create_block():
         print("Starting mining in: " + str(mining_timer - i))
         sleep(1)
 
+    start_time = time.time()
     while hash_dict(block)[:node_parameters['difficulty']] != hash_string:
-        print(f"Nonce: {block['nonce']} ")
         block['nonce'] += 1
+    end_time = time.time()
 
     print("HASH FOUND--")
+    print(f"TIME: {end_time-start_time}")
     print(f"NONCE: {block['nonce']}")
     print(f"HASH: {hash_dict(block)}")
     print("--------------------")

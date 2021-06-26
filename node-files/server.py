@@ -8,6 +8,7 @@ from flask import Flask, request
 import json
 import node
 import blockchain
+from sys import argv
 from pprint import pprint
 
 """
@@ -16,7 +17,10 @@ Initialization
 
 app = Flask(__name__)
 blockchain.initialize()
-node.initialize()
+if len(argv) < 4:
+    node.initialize()
+else:
+    node.initialize(argv[1], argv[2], argv[3])
 
 """
 Routing

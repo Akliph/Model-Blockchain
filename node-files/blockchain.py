@@ -143,7 +143,7 @@ Hashing Functions
 
 
 # Returns a hash object of any dict object
-def hash_dict(dictionary):
+def hash_dict_hex(dictionary):
     # Turn dict into string and return its hash
     dict_data = json.dumps(dictionary, sort_keys=True)
     dict_hash = sha256(dict_data.encode()).hexdigest()
@@ -152,7 +152,7 @@ def hash_dict(dictionary):
 
 
 # Returns a hash digest of any dict object
-def hash_transaction(transaction):
+def hash_dict_bytes(transaction):
     tx_data = json.dumps(transaction, sort_keys=True)
     dict_hash = sha256(tx_data.encode()).digest()
 
