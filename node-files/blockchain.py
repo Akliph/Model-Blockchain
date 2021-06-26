@@ -22,11 +22,6 @@ def initialize():
         os.mkdir('./blockchain')
 
     if not os.path.isfile('./blockchain/blockchain.json'):
-        with open('./blockchain/blockchain.json', 'w+') as f:
-            data = []
-            json.dump(data, f)
-            f.close()
-
         create_genesis()
 
 
@@ -36,8 +31,7 @@ def create_genesis():
     template_block = get_block_template()
 
     with open('./blockchain/blockchain.json', 'w+') as f:
-        data = json.load(f)
-        data.append(template_block)
+        data = [template_block]
         data = json.dumps(data, indent=4)
         f.seek(0)
         f.write(data)
