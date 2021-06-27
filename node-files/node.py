@@ -140,7 +140,7 @@ def verify_transaction(transaction_dict):
                f"instead it was {transaction_dict['tx_id']}"
 
     # Sender value should be equal to PK
-    if transaction_dict['sender'] is not transaction_dict['pk'][0]:
+    if transaction_dict['sender'] is not transaction_dict['user_data']['pk'][0]:
         return f"Sender in transaction [{transaction_dict['sender']}] should be equal to public key in user data"
 
     # Input/Output validation

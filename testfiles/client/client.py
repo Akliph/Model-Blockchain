@@ -274,6 +274,8 @@ def create_block():
         with open('./client_stats.json', 'w+') as f:
             json.dump(data, f, indent=4)
             f.close()
+        return True
+    return False
 
 
 """
@@ -345,7 +347,9 @@ if CLIENT_MODE == 'MINE':
 
     for b in range(block_loop):
         print("Constructing Block...")
-        create_block()
+        if not create_block():
+            b -= 1
+            continue
         print(b)
 
 if CLIENT_MODE == 'TRANSACT':
