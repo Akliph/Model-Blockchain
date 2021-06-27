@@ -1,0 +1,177 @@
+[
+    {
+        "block_time": 13.991285800933838,
+        "difficulty": 5,
+        "nonce": 397575,
+        "hash": "000009745034549965d50f316701fe7d1e5e5d541f9f370ce001312054f4f4e1",
+        "average_time": 13.991285800933838
+    },
+    {
+        "block_time": 5.922032594680786,
+        "difficulty": 5,
+        "nonce": 174442,
+        "hash": "000001fc6a0ce1402ee531d7a23726e772a2fe086cadd2b96a3124e0f89aba1a",
+        "average_time": 9.956659197807312
+    },
+    {
+        "block_time": 13.214436531066895,
+        "difficulty": 5,
+        "nonce": 389180,
+        "hash": "0000037e715b2f7d6162c2c0c37fdd082ee40b82f6efd4ba86f8f60fa3cf4ee0",
+        "average_time": 11.042584975560507
+    },
+    {
+        "block_time": 34.95389795303345,
+        "difficulty": 5,
+        "nonce": 902389,
+        "hash": "00000b39c0f4ca50e8be68beb28816a964bbb729a72a3d63db8c83d36b0e7ce6",
+        "average_time": 17.02041321992874
+    },
+    {
+        "block_time": 31.19735026359558,
+        "difficulty": 5,
+        "nonce": 965482,
+        "hash": "00000c74608b89b1e9dbe8de2069c052ab9f0f1e1278e6b28ce3cc7d3f7c0b47",
+        "average_time": 19.85580062866211
+    },
+    {
+        "block_time": 19.097578287124634,
+        "difficulty": 5,
+        "nonce": 613623,
+        "hash": "000008dc4f93eda4ac643c2c68f918040e94d1e96a0c6c8d8aa5f3644635cdfd",
+        "average_time": 19.729430238405865
+    },
+    {
+        "block_time": 21.97100567817688,
+        "difficulty": 5,
+        "nonce": 689628,
+        "hash": "00000df0f908d3c4c98411b0390130026d89bf9f9abf8bcc60748fb3f3180c38",
+        "average_time": 20.049655301230295
+    },
+    {
+        "block_time": 6.451438665390015,
+        "difficulty": 5,
+        "nonce": 216626,
+        "hash": "0000087c09c38f57960b39c863e319ecb302d04ed11ee51ea2382d86fd2990b2",
+        "average_time": 18.34987822175026
+    },
+    {
+        "block_time": 96.12519383430481,
+        "difficulty": 5,
+        "nonce": 3121253,
+        "hash": "000004b1b659baf7faed549275b8d90f26b28dc90d09855961b1c80a31529522",
+        "average_time": 26.991579956478542
+    },
+    {
+        "block_time": 13.879833459854126,
+        "difficulty": 5,
+        "nonce": 494224,
+        "hash": "000002f891a0c4b0f9d8f0f15da8d825b83e9ba98415a893330eb822364d3593",
+        "average_time": 25.680405306816102
+    },
+    {
+        "block_time": 4.55541205406189,
+        "difficulty": 5,
+        "nonce": 159246,
+        "hash": "000001bfcc658ccc7b96bf2460ad60d0c3fed29b38f95099f210f3e4cf22cb8a",
+        "average_time": 23.759951374747537
+    },
+    {
+        "block_time": 45.611833333969116,
+        "difficulty": 5,
+        "nonce": 1602508,
+        "hash": "00000e5669346f67f76942c9934176ac0aab698ecbadc6e3b5cf316bde3a0b73",
+        "average_time": 25.580941538016003
+    },
+    {
+        "block_time": 58.81091332435608,
+        "difficulty": 5,
+        "nonce": 2043220,
+        "hash": "000007c7a313f5e88c5ac4c308983bc20e0db6e21b696607932bc0b36c42d3bb",
+        "average_time": 28.137093213888313
+    },
+    {
+        "block_time": 15.242388486862183,
+        "difficulty": 5,
+        "nonce": 523187,
+        "hash": "000002b23b10f8cc9477859567643660357ba867267603b03ed1dc221c8eeb68",
+        "average_time": 27.21604287624359
+    },
+    {
+        "block_time": 13.367398500442505,
+        "difficulty": 5,
+        "nonce": 466147,
+        "hash": "00000adbc42cbbc4d1092dd6eea176b625ef487d3b65c638e7b2fb6d38a16522",
+        "average_time": 26.29279991785685
+    },
+    {
+        "block_time": 60.09120988845825,
+        "difficulty": 5,
+        "nonce": 1900729,
+        "hash": "000001ab8d6998570033518cc36712fc37e31b88a52a88186941289ca9a6e266",
+        "average_time": 28.40520054101944
+    },
+    {
+        "block_time": 17.26808190345764,
+        "difficulty": 5,
+        "nonce": 521515,
+        "hash": "000003886892a6b27b7d52fe12e2a17bba9a0ca71f2d01d2d7f837e6f25f6a24",
+        "average_time": 27.75007591528051
+    },
+    {
+        "block_time": 45.5516939163208,
+        "difficulty": 5,
+        "nonce": 1286953,
+        "hash": "000007e8080d4ce7b9b53fea63081fa131b490980b4bb08df9cb12f0f5d912a2",
+        "average_time": 28.73905469311608
+    },
+    {
+        "block_time": 48.255566358566284,
+        "difficulty": 5,
+        "nonce": 1435785,
+        "hash": "000002661553715cec9636b5c0298e7929e146d063cf889546d44344d644b605",
+        "average_time": 29.76623951761346
+    },
+    {
+        "block_time": 11.861371278762817,
+        "difficulty": 5,
+        "nonce": 418397,
+        "hash": "00000d947115bf51a113ee68ce8f33fa16210352090f6a206ccb8501bb8bcc95",
+        "average_time": 28.87099610567093
+    },
+    {
+        "block_time": 20.616666316986084,
+        "difficulty": 5,
+        "nonce": 736282,
+        "hash": "00000308dcb8ff110b0f067b01146466f529691d380788a78a150bb1ff083d69",
+        "average_time": 28.477932782400224
+    },
+    {
+        "block_time": 19.131198406219482,
+        "difficulty": 5,
+        "nonce": 668142,
+        "hash": "00000021a82d76af334811d47bda48a131fa0f1ba1f587a5064748382b52dc60",
+        "average_time": 28.05308121984655
+    },
+    {
+        "block_time": 7.291107177734375,
+        "difficulty": 5,
+        "nonce": 245664,
+        "hash": "00000dd4e26c980d7a480486b8cb354d2003549d67dde1557fd03966a18722b8",
+        "average_time": 27.150386696276456
+    },
+    {
+        "block_time": 55.693154096603394,
+        "difficulty": 5,
+        "nonce": 1954081,
+        "hash": "0000068b3c4ea20b9c0c213c2f2ac1c5cfd4e9ce6c3ddbdab9d0f7b976dad9bd",
+        "average_time": 28.33966867129008
+    },
+    {
+        "block_time": 4.8971405029296875,
+        "difficulty": 5,
+        "nonce": 169749,
+        "hash": "0000076910de81ba37352ce53eaff2d9c1b2373ea9d25a3ef186b198204b6a94",
+        "average_time": 27.401967544555664
+    }
+]

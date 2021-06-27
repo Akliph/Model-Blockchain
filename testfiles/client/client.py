@@ -136,7 +136,6 @@ def create_transaction(outputs, fee):
     print(f"Remainder of {remainder} will be payed back to this key ({PUBKEY})")
 
     # Fill out the remainder fields
-    transaction['sender'] = PUBKEY
     transaction['tx_id'] = str(uuid4().hex)
 
     # Remove the user data object and create a hash of the transaction
@@ -345,12 +344,11 @@ if CLIENT_MODE == 'MINE':
         except:
             print("Enter a whole number value greater than 0...")
 
-    i = 0
-    while i < block_loop:
+    i = block_loop
+    while i > 0:
         print("Constructing Block...")
-        if not create_block():
+        if create_block():
             i -= 1
-            continue
         print(i)
 
 if CLIENT_MODE == 'TRANSACT':
@@ -413,8 +411,8 @@ if CLIENT_MODE == 'TRANSACT':
     print(res.text)
 
 print("CURRENT BALANCE: ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json())
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
 print("UTXO OF ADDRESS (1): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json()['sum'])
 print("UTXO OF ADDRESS (2): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json())
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json()['sum'])
