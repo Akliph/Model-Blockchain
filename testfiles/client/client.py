@@ -366,8 +366,7 @@ if CLIENT_MODE == 'TRANSACT':
                 print("Enter a whole number...")
                 continue
 
-            output_receiver = int(input("Enter the recipient's address: "))
-
+            output_receiver = str(input("Enter the recipient's address: "))
         output_list.append(create_transaction_output(output_value, output_receiver))
 
     # Get the desired mining fee
