@@ -3,6 +3,11 @@ A small model proof-of-work blockchain which will be based on python-flask runni
 
 This blockchain is heavily based on bitcoin. The main differece being it sends data over HTTP and all of the code is much less efficient. 
 
+# Endpoints
+**Default Port** ```1337```
+
+```to/be/continued```
+
 # The Timeline of Supply
 
 | Era | Reward | Total Supply |
