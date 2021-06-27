@@ -1,7 +1,6 @@
 {
   "tx_id" : "hash of all other data in transaction",
   "locktime" : 0,
-  "sender" : "None (Has no sender)",
   "inputs": [
     {
       "previous_output" : ["COINBASE"],

@@ -1,7 +1,6 @@
 {
   "tx_id": "hash of all other data in transaction",
   "locktime": "unix time in seconds until outputs are valid",
-  "sender": "public key of the user who submitted this transaction",
   "inputs": [
     {
       "previous_output": ["block index", "transaction index", "output index"],

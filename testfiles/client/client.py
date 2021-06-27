@@ -3,19 +3,18 @@ This file is meant to be a fully working mining client to interact with the REST
 directory. Other client software can be written to mine and transact with the API however.
 """
 import json
-from Crypto.PublicKey import RSA
+import sys
 import os
 import requests
+import time
 from hashlib import sha256
 from pprint import pprint
-import time
-from time import sleep
 from uuid import uuid4
+from Crypto.PublicKey import RSA
 
-NODE_URL = 'http://192.168.1.243:1337/'
+NODE_URL = 'http://127.0.0.1:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
-
 
 
 # Initialize client RSA credentials
@@ -39,7 +38,8 @@ def initialize():
 
         # Create new file and close it
         with open('./credentials/key.pem', 'wb+') as f:
-            passcode = str(input("Please enter a password to encode your keys (THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
+            passcode = str(input("Please enter a password to encode your keys "
+                                 "(THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
             f.write(keys.export_key('PEM', passphrase=passcode))
             f.close()
 
@@ -53,8 +53,8 @@ def initialize():
                     passcode = str(input("Please enter your password: "))
                     keys = RSA.import_key(f.read(), passphrase=passcode)
                 except:
-                    print("Wrong password, please try again.")
-                    continue
+                    print("Wrong password...")
+                    sys.exit()
                 break
 
             f.close()
@@ -66,13 +66,14 @@ def initialize():
         print("Keys loaded")
 
     # Create the client_stats.json file
-    if not os.path.isfile('./client_stats.json'):
-        with open('./client_stats.json', 'w+') as f:
+    if not os.path.isfile('./mining_benchmarks/client_stats.json'):
+        with open('./mining_benchmarks/client_stats.json', 'w+') as f:
             data = []
             json.dump(data, f)
             f.close()
 
     print(f"Your public key address is: {PUBKEY}")
+
 
 """
 Transaction Submission
@@ -252,7 +253,7 @@ def create_block():
 
     # If the result was valid write information about how the client solved this block
     if block_result == 'valid':
-        data = json.load(open('./client_stats.json', 'r'))
+        data = json.load(open('./mining_benchmarks/client_stats.json', 'r'))
 
         average_time = 0
         for entry in data:
@@ -270,7 +271,7 @@ def create_block():
         }
         data.append(client_data)
 
-        with open('./client_stats.json', 'w+') as f:
+        with open('./mining_benchmarks/client_stats.json', 'w+') as f:
             json.dump(data, f, indent=4)
             f.close()
         return True
@@ -289,23 +290,24 @@ def find_transaction_sum(transaction_dict, current_chain):
 
     for tx_input in transaction_dict['inputs']:
         # Check if block containing corresponding output exists
-        output_block_index = 0
         data = current_chain
         for block in data:
-            if data.index(block) == tx_input['previous_output'][0]:
-                output_block_index = data.index(block)
+            if block['height'] == tx_input['previous_output'][0]:
+                output_block = block
                 break
 
         # Find input sum
         data = current_chain
 
-        previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
+        previous_transaction = output_block['transactions'][tx_input['previous_output'][1]]
         previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
         input_sum += int(previous_output['value'])
 
-        for tx_output in transaction_dict['outputs']:
-            output_sum += tx_output['value']
+    for tx_output in transaction_dict['outputs']:
+        output_sum += tx_output['value']
+        print(f"Adding {tx_output} to output sum for output #{transaction_dict['outputs'].index(tx_output)} "
+              f"in transaction {transaction_dict['tx_id']}")
 
     return input_sum, output_sum
 
@@ -349,7 +351,7 @@ if CLIENT_MODE == 'MINE':
         print("Constructing Block...")
         if create_block():
             i -= 1
-        print(i)
+        print(block_loop - i)
 
 if CLIENT_MODE == 'TRANSACT':
     output_count = None
@@ -413,6 +415,6 @@ if CLIENT_MODE == 'TRANSACT':
 print("CURRENT BALANCE: ")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
 print("UTXO OF ADDRESS (1): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json()['sum'])
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
 print("UTXO OF ADDRESS (2): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json()['sum'])
+print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json())

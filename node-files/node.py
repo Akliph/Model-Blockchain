@@ -130,9 +130,6 @@ def verify_transaction(transaction_dict):
             if type(example_dict['outputs'][0][key]) != type(tx_output[key]):
                 return (f"Dict key {key} is type {type(tx_output[key])}, " +
                         f"not type {type(example_dict['outputs'][0][key])}")
-        # If an output value is less than 1 raise error
-        if tx_output['value'] < 1:
-            return f"Output {tx_output} cannot have a value of less than 1"
 
     # Check that transaction ID is a real number
     if len(transaction_dict['tx_id']) != 32:
@@ -212,6 +209,10 @@ def verify_transaction(transaction_dict):
 
     # Outputs validation
     for tx_output in transaction_dict['outputs']:
+        # If an output value is less than 1 raise error
+        if tx_output['value'] < 1:
+            return f"Output {tx_output} cannot have a value of less than 1"
+
         output_sum += tx_output['value']
 
     # Output of transaction should not exceed input
@@ -265,6 +266,12 @@ def verify_coinbase_transaction(coinbase_dict):
     if len(coinbase_dict['inputs']) != 1 or len(coinbase_dict['outputs'] != 1):
         return "The coinbase transaction should have exactly one input and one output"
 
+    # Output verification
+    for tx_output in coinbase_dict['outputs']:
+        if tx_output['value'] < 1:
+            return f"The coinbase output value [{tx_output['value']}] should be a positive number"
+
+
     return None
 
 
@@ -275,13 +282,12 @@ def find_transaction_sum(transaction_dict):
 
     for tx_input in transaction_dict['inputs']:
         # Check if block containing corresponding output exists
-        output_block_index = 0
         transaction_found = False
         with open('./blockchain/blockchain.json') as f:
             data = json.load(f)
             for block in data:
-                if data.index(block) == tx_input['previous_output'][0]:
-                    output_block_index = data.index(block)
+                if block['height'] == tx_input['previous_output'][0]:
+                    output_block = block
                     transaction_found = True
                     break
 
@@ -289,14 +295,14 @@ def find_transaction_sum(transaction_dict):
                 return None
 
             # Find input sum
-            previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
+            previous_transaction = output_block['transactions'][tx_input['previous_output'][1]]
             previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
             input_sum += int(previous_output['value'])
             f.close()
 
-        for tx_output in transaction_dict['outputs']:
-            output_sum += tx_output['value']
+    for tx_output in transaction_dict['outputs']:
+        output_sum += tx_output['value']
 
     return input_sum, output_sum
 
@@ -496,9 +502,8 @@ def get_utxo(public_key):
                 for output in tx['outputs']:
                     tx_output_sum = 0
                     if output['pk_script'] == public_key:
-                        tx_output_sum += output['value']
                         unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
-                                                     tx['outputs'].index(output)], tx_output_sum))
+                                                     tx['outputs'].index(output)], output['value']))
 
                 # For every transaction input, if it already exists on the blockchain and it is in the list, then
                 # remove it from the list
