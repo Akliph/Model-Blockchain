@@ -154,3 +154,4 @@ fabric.properties
 node-files/blockchain
 node-files/mempool
 testfiles/client/credentials
+testfiles/client/client_stats.json

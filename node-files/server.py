@@ -135,7 +135,7 @@ def return_utxo():
     try:
         pk_data = int(request.data)
     except:
-        return "Submit a string containing a public key int"
+        return "Submit a string containing a public key int", 400
     return node.get_utxo(pk_data), 200
 
 

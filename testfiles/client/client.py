@@ -15,50 +15,64 @@ from uuid import uuid4
 NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
-PUBKEY, PRIVKEY, EXPKEY = (None, None, None)
 
-if not os.path.exists('./credentials'):
-    print("Generating new keys...")
-    keys = RSA.generate(bits=2048)
-    print("2048 bit keys have been generated...")
 
-    EXPKEY = keys.e
-    PRIVKEY = keys.d
-    PUBKEY = keys.n
 
-    # Create the directory
-    os.mkdir('./credentials')
+# Initialize client RSA credentials
+def initialize():
+    # Set global key consts
+    global EXPKEY
+    global PRIVKEY
+    global PUBKEY
 
-    # Create new file and close it
-    with open('./credentials/key.pem', 'wb+') as f:
-        passcode = str(input("Please enter a password to encode your keys (THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
-        f.write(keys.export_key('PEM', passphrase=passcode))
-        f.close()
+    if not os.path.exists('./credentials'):
+        print("Generating new keys...")
+        keys = RSA.generate(bits=2048)
+        print("2048 bit keys have been generated...")
 
-    print("Keys written...")
+        EXPKEY = keys.e
+        PRIVKEY = keys.d
+        PUBKEY = keys.n
 
-else:
-    with open('./credentials/key.pem', 'r') as f:
-        print("Reading Keys...")
-        while True:
-            try:
-                passcode = str(input("Please enter your password: "))
-                keys = RSA.import_key(f.read(), passphrase=passcode)
-            except:
-                print("Wrong password, please try again.")
-                continue
-            break
+        # Create the directory
+        os.mkdir('./credentials')
 
-        f.close()
+        # Create new file and close it
+        with open('./credentials/key.pem', 'wb+') as f:
+            passcode = str(input("Please enter a password to encode your keys (THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
+            f.write(keys.export_key('PEM', passphrase=passcode))
+            f.close()
 
-    EXPKEY = keys.e
-    PRIVKEY = keys.d
-    PUBKEY = keys.n
+        print("Keys written...")
 
-    print("Keys loaded")
+    else:
+        with open('./credentials/key.pem', 'r') as f:
+            print("Reading Keys...")
+            while True:
+                try:
+                    passcode = str(input("Please enter your password: "))
+                    keys = RSA.import_key(f.read(), passphrase=passcode)
+                except:
+                    print("Wrong password, please try again.")
+                    continue
+                break
 
-print(f"Your public key is: {PUBKEY}")
-print(f"Your exponent is:  {EXPKEY}")
+            f.close()
+
+        EXPKEY = keys.e
+        PRIVKEY = keys.d
+        PUBKEY = keys.n
+
+        print("Keys loaded")
+
+    # Create the client_stats.json file
+    if not os.path.isfile('./client_stats.json'):
+        with open('./client_stats.json', 'w+') as f:
+            data = []
+            json.dump(data, f)
+            f.close()
+
+    print(f"Your public key address is: {PUBKEY}")
 
 """
 Transaction Submission
@@ -156,59 +170,38 @@ def create_block():
     # To create a block...
     # Request all mempool transactions
     mempool_transactions = requests.get(f'{NODE_URL}/node/tx/currentmempool').json()
-    print("CURRENT MEMPOOL--")
-    print(type(mempool_transactions))
-    pprint(mempool_transactions)
-    print('--------------------')
+
     # Request all node parameters
     node_parameters = requests.get(f"{NODE_URL}/node/info/parameters").json()
     print("CURRENT PARAMETERS--")
-    print(type(node_parameters))
-    pprint(node_parameters)
+    print(node_parameters)
     print('--------------------')
     # Request the entire blockchain
     current_blockchain = requests.get(f"{NODE_URL}/node/chain/currentchain").json()
-    print("CURRENT BLOCKCHAIN--")
-    print(type(current_blockchain))
-    pprint(current_blockchain)
-    print('--------------------')
 
     # Find enough transactions to satisfy the node tx_threshold parameter
-    print("FINDING TRANSACTIONS TO ADD TO BLOCK")
     current_transactions = []
     for tx in mempool_transactions:
         if len(current_transactions) >= TRANSACTION_GOAL or len(current_transactions) >= node_parameters['tx_maximum']:
             break
         current_transactions.append(tx)
         print(f"TRANSACTION [{tx['tx_id']}] WILL BE ADDED TO BLOCK")
-        print("**")
-    print("--------------------")
 
     # Find the most recent block and hash it to get the header of this block
     last_block = current_blockchain[-1]
     last_block_hash = hash_dict(last_block)
-    print(f"THE HASH OF THE MOST RECENT BLOCK IS [{last_block_hash}]")
-    print("--------------------")
 
     # Create a coinbase transaction and add it to the block first
     coinbase_transaction = requests.get(f"{NODE_URL}/node/template/coinbase").json()
-    print("REQUESTED NEW COINBASE TRANSACTION--")
-    pprint(coinbase_transaction)
-    print("--------------------")
 
     # Request a new block template
     block = requests.get(f"{NODE_URL}/node/template/block").json()
     block['header'] = last_block_hash
     block['height'] = last_block['height'] + 1
-    print("REQUESTED NEW BLOCK TEMPLATE--")
-    pprint(block)
-    print("-------------------")
 
     # Add all of the transactions pulled from the mempool
     for tx in current_transactions:
         block['transactions'].append(tx)
-    print("ADDED ALL PENDING TRANSACTIONS TO BLOCK")
-    print("-------------------")
 
     # Find the block fees by subtracting the sum of all transaction inputs by the sum of all transaction outputs
     total_input = 0
@@ -220,10 +213,9 @@ def create_block():
         total_input += int(tx_sum[0])
         total_output += int(tx_sum[1])
 
-    print("FOUND BLOCK TOTAL INPUT AND OUTPUT--")
+    print("BLOCK TOTAL INPUT AND OUTPUT--")
     print(f"INPUT: {total_input} :: OUTPUT: {total_output}")
     print(f"FEES: {total_input - total_output}")
-    print("-------------------")
 
     # Make the value of the coinbase transaction output equal to the block reward plus the block fees
     coinbase_transaction['inputs'][0]['previous_output'] = ["COINBASE"]
@@ -234,21 +226,12 @@ def create_block():
     # Insert the coinbase transaction at the top of the block
     block['transactions'].insert(0, coinbase_transaction)
 
-    # Block should be complete
-    print("BLOCK IS COMPLETED--")
-    pprint(block)
-    print("--------------------")
-
     # Find the nonce based on this nodes block difficulty
-    mining_timer = 2
     hash_string = ""
     for i in range(node_parameters['difficulty']):
         hash_string += "0"
 
-    for i in range(mining_timer + 1):
-        print("Starting mining in: " + str(mining_timer - i))
-        sleep(1)
-
+    # Mine the block and record the time it took
     start_time = time.time()
     while hash_dict(block)[:node_parameters['difficulty']] != hash_string:
         block['nonce'] += 1
@@ -262,12 +245,35 @@ def create_block():
 
     # Submit the block
     print("BLOCK COMPLETED")
-    pprint(block)
     print("SUBMITTING BLOCK...")
     print("-------------------")
     block_result = requests.post(f"{NODE_URL}/node/chain/submit", json.dumps(block)).text
     print("BLOCK RESULT--")
     pprint(block_result)
+
+    # If the result was valid write information about how the client solved this block
+    if block_result == 'valid':
+        data = json.load(open('./client_stats.json', 'r'))
+
+        average_time = 0
+        for entry in data:
+            average_time += entry['block_time']
+
+        average_time += end_time - start_time
+        average_time = average_time/(len(data) + 1)
+
+        client_data = {
+            'block_time': end_time-start_time,
+            'difficulty': node_parameters['difficulty'],
+            'nonce': block['nonce'],
+            'hash': hash_dict(block),
+            'average_time': average_time
+        }
+        data.append(client_data)
+
+        with open('./client_stats.json', 'w+') as f:
+            json.dump(data, f, indent=4)
+            f.close()
 
 
 """
@@ -320,6 +326,8 @@ def hash_transaction(transaction):
     return dict_hash
 
 
+initialize()
+
 print("UTXO OF THIS CLIENT IS...")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json())
 
@@ -328,9 +336,17 @@ while CLIENT_MODE != 'MINE' and CLIENT_MODE != 'TRANSACT' and CLIENT_MODE != 'CA
     print("Client mode: " + CLIENT_MODE)
 
 if CLIENT_MODE == 'MINE':
-    print("Constructing Block...")
-    sleep(0.5)
-    create_block()
+    block_loop = 0
+    while block_loop < 1:
+        try:
+            block_loop = int(input("Number of blocks to mine: "))
+        except:
+            print("Enter a whole number value greater than 0...")
+
+    for b in range(block_loop):
+        print("Constructing Block...")
+        create_block()
+        print(b)
 
 if CLIENT_MODE == 'TRANSACT':
     output_count = None
