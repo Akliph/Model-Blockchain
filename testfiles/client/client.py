@@ -12,7 +12,6 @@ from hashlib import sha256
 from pprint import pprint
 from uuid import uuid4
 
-
 NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
@@ -226,7 +225,7 @@ def create_block():
     end_time = time.time()
 
     print("HASH FOUND--")
-    print(f"TIME: {end_time-start_time}")
+    print(f"TIME: {end_time - start_time}")
     print(f"NONCE: {block['nonce']}")
     print(f"HASH: {hash_dict(block)}")
     print("--------------------")
@@ -248,10 +247,10 @@ def create_block():
             average_time += entry['block_time']
 
         average_time += end_time - start_time
-        average_time = average_time/(len(data) + 1)
+        average_time = average_time / (len(data) + 1)
 
         client_data = {
-            'block_time': end_time-start_time,
+            'block_time': end_time - start_time,
             'difficulty': node_parameters['difficulty'],
             'nonce': block['nonce'],
             'hash': hash_dict(block),
@@ -319,7 +318,6 @@ def hash_transaction(transaction):
 
 initialize()
 
-
 print("UTXO OF THIS CLIENT IS...")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", str(vk.to_string().hex())).json())
 
@@ -368,12 +366,7 @@ if CLIENT_MODE == 'TRANSACT':
                 print("Enter a whole number...")
                 continue
 
-        while type(output_receiver) is not str:
-            try:
-                output_receiver = int(input("Enter the recipient's address: "))
-            except:
-                print("Enter a string address...")
-                continue
+            output_receiver = int(input("Enter the recipient's address: "))
 
         output_list.append(create_transaction_output(output_value, output_receiver))
 
