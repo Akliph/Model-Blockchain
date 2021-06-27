@@ -13,7 +13,7 @@ from pprint import pprint
 from uuid import uuid4
 
 
-NODE_URL = 'http://127.0.0.1:1337/'
+NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
 
@@ -51,6 +51,9 @@ def initialize():
         print("Keys loaded")
 
     # Create the client_stats.json file
+    if not os.path.isdir('../mining_benchmarks'):
+        os.mkdir('../mining_benchmarks')
+
     if not os.path.isfile('./mining_benchmarks/client_stats.json'):
         with open('../mining_benchmarks/client_stats.json', 'w+') as f:
             data = []
