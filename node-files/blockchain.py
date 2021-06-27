@@ -111,7 +111,6 @@ def get_transaction_template():
     # Set default transaction data
     tx_data['tx_id'] = ''
     tx_data['locktime'] = 0.0
-    tx_data['sender'] = 0
     tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
     tx_data['outputs'][0]['value'] = 0
@@ -128,7 +127,6 @@ def get_coinbase_template():
 
     coinbase_data['tx_id'] = ''
     coinbase_data['locktime'] = 0.0
-    coinbase_data['sender'] = ''
     coinbase_data['inputs'][0]['previous_output'] = ['COINBASE']
     coinbase_data['inputs'][0]['signature_script'] = None
     coinbase_data['outputs'][0]['value'] = 0

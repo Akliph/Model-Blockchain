@@ -345,12 +345,13 @@ if CLIENT_MODE == 'MINE':
         except:
             print("Enter a whole number value greater than 0...")
 
-    for b in range(block_loop):
+    i = 0
+    while i < block_loop:
         print("Constructing Block...")
         if not create_block():
-            b -= 1
+            i -= 1
             continue
-        print(b)
+        print(i)
 
 if CLIENT_MODE == 'TRANSACT':
     output_count = None

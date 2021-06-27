@@ -139,10 +139,6 @@ def verify_transaction(transaction_dict):
         return f"Transaction id should be a hexadecimal uuid with 32 characters " \
                f"instead it was {transaction_dict['tx_id']}"
 
-    # Sender value should be equal to PK
-    if transaction_dict['sender'] is not transaction_dict['user_data']['pk'][0]:
-        return f"Sender in transaction [{transaction_dict['sender']}] should be equal to public key in user data"
-
     # Input/Output validation
     input_sum = 0
     output_sum = 0
@@ -179,8 +175,9 @@ def verify_transaction(transaction_dict):
             previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
             previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
-            if previous_output['pk_script'] != transaction_dict['sender']:
-                return f"An output of transaction {transaction_dict['tx_id']} is not addressed to the sender"
+            if previous_output['pk_script'] != transaction_dict['user_data']['pk'][0]:
+                return f"An output of transaction {transaction_dict['tx_id']} is not addressed to the sender " \
+                       f"[{transaction_dict['user_data']['pk'][0]}]"
 
             input_sum += int(previous_output['value'])
             f.close()
