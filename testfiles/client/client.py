@@ -368,11 +368,11 @@ if CLIENT_MODE == 'TRANSACT':
                 print("Enter a whole number...")
                 continue
 
-        while type(output_receiver) is not int:
+        while type(output_receiver) is not str:
             try:
-                output_receiver = int(input("Enter the recipient's address as a whole number: "))
+                output_receiver = int(input("Enter the recipient's address: "))
             except:
-                print("Enter a whole number address...")
+                print("Enter a string address...")
                 continue
 
         output_list.append(create_transaction_output(output_value, output_receiver))
