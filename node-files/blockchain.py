@@ -114,8 +114,8 @@ def get_transaction_template():
     tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
     tx_data['outputs'][0]['value'] = 0
-    tx_data['outputs'][0]['pk_script'] = 0
-    tx_data['user_data']['pk'] = []
+    tx_data['outputs'][0]['pk_script'] = ''
+    tx_data['user_data']['pk'] = ''
     tx_data['user_data']['signature'] = 0
 
     return tx_data
@@ -128,7 +128,7 @@ def get_coinbase_template():
     coinbase_data['tx_id'] = ''
     coinbase_data['locktime'] = 0.0
     coinbase_data['inputs'][0]['previous_output'] = ['COINBASE']
-    coinbase_data['inputs'][0]['signature_script'] = None
+    coinbase_data['inputs'][0]['signature_script'] = ''
     coinbase_data['outputs'][0]['value'] = 0
     coinbase_data['outputs'][0]['pk_script'] = ''
 

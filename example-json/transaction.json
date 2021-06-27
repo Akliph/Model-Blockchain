@@ -13,6 +13,6 @@
       "pk_script": "Conditions that must be met to redeem this output stored in a list [PUBKEY]"
     }
   ],
-  "user_data" : {"pk" :  "user public key [PUBKEY, EXPKEY]",
+  "user_data" : {"pk" :  "user public key",
                  "signature" :  "transaction signature"}
 }

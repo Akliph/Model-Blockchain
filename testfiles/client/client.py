@@ -7,10 +7,11 @@ import sys
 import os
 import requests
 import time
+import ecdsa
 from hashlib import sha256
 from pprint import pprint
 from uuid import uuid4
-from Crypto.PublicKey import RSA
+
 
 NODE_URL = 'http://127.0.0.1:1337/'
 CLIENT_MODE = ''
@@ -20,27 +21,21 @@ TRANSACTION_GOAL = 10
 # Initialize client RSA credentials
 def initialize():
     # Set global key consts
-    global EXPKEY
-    global PRIVKEY
-    global PUBKEY
+    global sk
+    global vk
 
     if not os.path.exists('./credentials'):
         print("Generating new keys...")
-        keys = RSA.generate(bits=2048)
-        print("2048 bit keys have been generated...")
-
-        EXPKEY = keys.e
-        PRIVKEY = keys.d
-        PUBKEY = keys.n
+        sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+        vk = sk.get_verifying_key()
+        print("SECP256k1 Eliptic Curve keys have been generated...")
 
         # Create the directory
         os.mkdir('./credentials')
 
         # Create new file and close it
         with open('./credentials/key.pem', 'wb+') as f:
-            passcode = str(input("Please enter a password to encode your keys "
-                                 "(THEY CANNOT BE RECOVERED IF YOU LOSE IT): "))
-            f.write(keys.export_key('PEM', passphrase=passcode))
+            f.write(sk.to_pem())
             f.close()
 
         print("Keys written...")
@@ -48,31 +43,21 @@ def initialize():
     else:
         with open('./credentials/key.pem', 'r') as f:
             print("Reading Keys...")
-            while True:
-                try:
-                    passcode = str(input("Please enter your password: "))
-                    keys = RSA.import_key(f.read(), passphrase=passcode)
-                except:
-                    print("Wrong password...")
-                    sys.exit()
-                break
-
+            sk = ecdsa.SigningKey.from_pem(f.read())
             f.close()
 
-        EXPKEY = keys.e
-        PRIVKEY = keys.d
-        PUBKEY = keys.n
+        vk = sk.get_verifying_key()
 
         print("Keys loaded")
 
     # Create the client_stats.json file
     if not os.path.isfile('./mining_benchmarks/client_stats.json'):
-        with open('./mining_benchmarks/client_stats.json', 'w+') as f:
+        with open('../mining_benchmarks/client_stats.json', 'w+') as f:
             data = []
             json.dump(data, f)
             f.close()
 
-    print(f"Your public key address is: {PUBKEY}")
+    print(f"Your public key address is: {vk.to_string().hex()}")
 
 
 """
@@ -84,7 +69,7 @@ Transaction Submission
 def create_transaction(outputs, fee):
     # output = [value, pk]
     # Find and store utxo of this client's pk
-    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', str(PUBKEY)).json()
+    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', vk.to_string().hex()).json()
     print("UTXO of this key")
     pprint(utxo)
 
@@ -121,7 +106,7 @@ def create_transaction(outputs, fee):
         transaction['outputs'].append(
             {
                 'value': output[0],
-                'pk_script': output[1]
+                'pk_script': str(output[1])
             }
         )
 
@@ -130,11 +115,11 @@ def create_transaction(outputs, fee):
         transaction['outputs'].append(
             {
                 'value': remainder,
-                'pk_script': PUBKEY
+                'pk_script': vk.to_string().hex()
             }
         )
 
-    print(f"Remainder of {remainder} will be payed back to this key ({PUBKEY})")
+    print(f"Remainder of {remainder} will be payed back to this key ({vk.to_string().hex()})")
 
     # Fill out the remainder fields
     transaction['tx_id'] = str(uuid4().hex)
@@ -149,9 +134,9 @@ def create_transaction(outputs, fee):
 
 # Add a user_data dict to the end of the transaction with a valid signature
 def sign_transaction(transaction, transaction_hash):
-    signature = pow(int.from_bytes(transaction_hash, byteorder='big'), PRIVKEY, PUBKEY)
-    transaction['user_data']['pk'] = [PUBKEY, EXPKEY]
-    transaction['user_data']['signature'] = signature
+    signature = sk.sign(bytes(transaction_hash))
+    transaction['user_data']['pk'] = vk.to_string().hex()
+    transaction['user_data']['signature'] = signature.hex()
 
     return transaction
 
@@ -220,7 +205,7 @@ def create_block():
     # Make the value of the coinbase transaction output equal to the block reward plus the block fees
     coinbase_transaction['inputs'][0]['previous_output'] = ["COINBASE"]
     coinbase_transaction['outputs'][0]['value'] = node_parameters['reward'] + (total_input - total_output)
-    coinbase_transaction['outputs'][0]['pk_script'] = PUBKEY
+    coinbase_transaction['outputs'][0]['pk_script'] = vk.to_string().hex()
     coinbase_transaction['tx_id'] = str(uuid4().hex)
 
     # Insert the coinbase transaction at the top of the block
@@ -253,7 +238,7 @@ def create_block():
 
     # If the result was valid write information about how the client solved this block
     if block_result == 'valid':
-        data = json.load(open('./mining_benchmarks/client_stats.json', 'r'))
+        data = json.load(open('../mining_benchmarks/client_stats.json', 'r'))
 
         average_time = 0
         for entry in data:
@@ -271,7 +256,7 @@ def create_block():
         }
         data.append(client_data)
 
-        with open('./mining_benchmarks/client_stats.json', 'w+') as f:
+        with open('../mining_benchmarks/client_stats.json', 'w+') as f:
             json.dump(data, f, indent=4)
             f.close()
         return True
@@ -331,10 +316,11 @@ def hash_transaction(transaction):
 
 initialize()
 
-print("UTXO OF THIS CLIENT IS...")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json())
 
-while CLIENT_MODE != 'MINE' and CLIENT_MODE != 'TRANSACT' and CLIENT_MODE != 'CANCEL':
+print("UTXO OF THIS CLIENT IS...")
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(vk.to_string().hex())).json())
+
+while CLIENT_MODE not in ['MINE', 'TRANSACT', 'CANCEL']:
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
     print("Client mode: " + CLIENT_MODE)
 
@@ -413,7 +399,7 @@ if CLIENT_MODE == 'TRANSACT':
     print(res.text)
 
 print("CURRENT BALANCE: ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(PUBKEY)).json()['sum'])
+print(requests.post(f"{NODE_URL}/node/chain/utxo", str(vk.to_string().hex())).json())
 print("UTXO OF ADDRESS (1): ")
 print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
 print("UTXO OF ADDRESS (2): ")

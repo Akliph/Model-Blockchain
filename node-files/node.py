@@ -1,7 +1,7 @@
 """
 Node.py is meant to handle most of the internal node logic as well as be the sole manager of mempool management.
 Methods for validating incoming transactions and requests are defined here and mainly called from server.py.
-Dynamic information like calculated block difficulty, median block time, block difficulty, UTXO(maybe), MEMPOOL, etc.
+Dynamic information like calculated block difficulty, mean block time, block difficulty, UTXO, MEMPOOL, etc.
 are all calculated and stored in a node config file here.
 
 
@@ -37,11 +37,24 @@ In a normal transaction all inputs previous_output should hold a list containing
 index of transaction, index of output']. All of the inputs will be added up, and then the values of the outputs will be
 added up. The transaction will only be valid if the value of the inputs is less than or equal to the value of the
 outputs. The remainder of the inputs should be included in the value of the coinbase transaction's output by the miner.
+
+-- Digital signature
+All transactions will include a 'user-data' component containing the public key 'pk' and 'signature' of the hash of this
+transaction without the 'user-data' component.
+
+The signing algorithm used is the Elliptic Curve Digital Signing Algorithm with the SECP256k1 curve. This is more secure
+than using RSA and is in line with Bitcoin's BIP32 protocol.
+
+Public Keys double as addresses to send coins to. If there are inputs in a transaction that do not belong to the public
+key provided in the 'user-data' or if the signature of the transaction cannot be verified with the Public Key provided,
+then the transaction is invalid.
+
 """
 
 import os
 import json
 import blockchain
+import ecdsa
 
 block_reward = 1000
 block_difficulty = None
@@ -172,9 +185,9 @@ def verify_transaction(transaction_dict):
             previous_transaction = data[output_block_index]['transactions'][tx_input['previous_output'][1]]
             previous_output = previous_transaction['outputs'][tx_input['previous_output'][2]]
 
-            if previous_output['pk_script'] != transaction_dict['user_data']['pk'][0]:
+            if previous_output['pk_script'] != transaction_dict['user_data']['pk']:
                 return f"An output of transaction {transaction_dict['tx_id']} is not addressed to the sender " \
-                       f"[{transaction_dict['user_data']['pk'][0]}]"
+                       f"[{transaction_dict['user_data']['pk']}]"
 
             input_sum += int(previous_output['value'])
             f.close()
@@ -256,14 +269,14 @@ def verify_coinbase_transaction(coinbase_dict):
 
     # Nested key check: outputs
     for key in list(coinbase_example_dict['outputs'][0].keys()):
-        if key not in list(coinbase_example_dict['outputs'].keys()):
+        if key not in list(coinbase_example_dict['outputs'][0].keys()):
             return "Not all required keys in coinbase transaction inputs"
 
-        if type(coinbase_example_dict['outputs'][key]) != type(coinbase_dict['outputs'][key]):
-            return f"Dict key, {key} should be {type(coinbase_example_dict['outputs'][key])}, " \
-                   f"not {type(coinbase_dict['outputs'][key])}"
+        if type(coinbase_example_dict['outputs'][0][key]) != type(coinbase_dict['outputs'][0][key]):
+            return f"Dict key, {key} should be {type(coinbase_example_dict['outputs'][0][key])}, " \
+                   f"not {type(coinbase_dict['outputs'][0][key])}"
 
-    if len(coinbase_dict['inputs']) != 1 or len(coinbase_dict['outputs'] != 1):
+    if len(coinbase_dict['inputs']) != 1 or len(coinbase_dict['outputs']) != 1:
         return "The coinbase transaction should have exactly one input and one output"
 
     # Output verification
@@ -402,12 +415,10 @@ def verify_signature(transaction_dict):
     del transaction_hash['user_data']
     transaction_hash = blockchain.hash_dict_bytes(transaction_hash)
 
-    hash_from_signature = pow(transaction_dict['user_data']['signature'],
-                              transaction_dict['user_data']['pk'][1],
-                              transaction_dict['user_data']['pk'][0])
-
-    if int.from_bytes(transaction_hash, byteorder='big') != hash_from_signature:
-        return "Transaction signature is invalid"
+    vk = ecdsa.VerifyingKey.from_string(bytes.fromhex(transaction_dict['user_data']['pk']), curve=ecdsa.SECP256k1)
+    sig = bytes.fromhex(transaction_dict['user_data']['signature'])
+    if not vk.verify(sig, transaction_hash):
+        return "Signature is invalid."
 
     return None
 

@@ -132,11 +132,7 @@ def receive_tx_broadcast():
 # Responds with list of UTXO
 @app.route('/node/chain/utxo', methods=['POST'])
 def return_utxo():
-    try:
-        pk_data = int(request.data)
-    except:
-        return "Submit a string containing a public key int", 400
-    return node.get_utxo(pk_data), 200
+    return node.get_utxo(request.get_data().decode()), 200
 
 
 if __name__ == "__main__":
