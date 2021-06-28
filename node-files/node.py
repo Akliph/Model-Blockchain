@@ -228,9 +228,9 @@ def verify_transaction(transaction_dict):
 
         # If an output has more than 2 decimal places raise and error
         if '.' in str(tx_output['value']):
-            if len(str(tx_output['value'])[str(tx_output).index('.') + 1:]) > 2:
+            if len(str(tx_output['value'])[str(tx_output['value']).index('.') + 1:]) > 2:
                 return f"Value in output {tx_output} should be up to 2 decimal places long, " \
-                       f"but it was {len(str(tx_output['value'])[str(tx_output).index('.') + 1:])}"
+                       f"but it was {len(str(tx_output['value'])[str(tx_output['value']).index('.') + 1:])}"
 
         output_sum += tx_output['value']
 
@@ -289,6 +289,12 @@ def verify_coinbase_transaction(coinbase_dict):
     for tx_output in coinbase_dict['outputs']:
         if tx_output['value'] < 1:
             return f"The coinbase output value [{tx_output['value']}] should be a positive number"
+
+        # If an output has more than 2 decimal places raise and error
+        if '.' in str(tx_output['value']):
+            if len(str(tx_output['value'])[str(tx_output).index('.') + 1:]) > 2:
+                return f"Value in output {tx_output} should be up to 2 decimal places long, " \
+                       f"but it was {len(str(tx_output['value'])[str(tx_output).index('.') + 1:])}"
 
 
     return None
@@ -505,7 +511,8 @@ def get_node_parameters():
     return parameters
 
 
-# Find UTXO of public key on blockchain
+# Find UTXO of public key on blockchain or blockchain and mempool
+# modes = ['confirmed', 'unconfirmed']
 def get_utxo(public_key, mode):
     # Valid type check
     if type(public_key) is not str:
@@ -569,20 +576,18 @@ def get_utxo(public_key, mode):
 
             f.close()
 
-        for unspent_transaction in unspent_transactions:
-            utxo_sum += unspent_transaction[1]
+        last_unspent_transaction_index = len(unspent_transactions)
 
         with open('./mempool/mempool.json') as f:
             data = json.load(f)
 
-            unspent_transactions.clear()
-
+            # Mark the index of the last unspent transaction in the blockchain so you don't loop over all of them again
+            # when adding the mempool transactions to the utxo_sum
             for tx in data:
                 for output in tx['outputs']:
                     tx_output_sum = 0
                     if output['pk_script'] == public_key:
-                        unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
-                                                      tx['outputs'].index(output)], output['value']))
+                        unspent_transactions.append(([tx['outputs'].index(output)], output['value']))
 
                     # For every transaction input, if it already exists on the blockchain and it is in the list, then
                     # remove it from the list
@@ -591,7 +596,7 @@ def get_utxo(public_key, mode):
                             if tx_input['previous_output'] == unspent_transaction[0]:
                                 unspent_transactions.remove(unspent_transaction)
 
-            for unspent_transaction in unspent_transactions:
+            for unspent_transaction in unspent_transactions[last_unspent_transaction_index:]:
                 utxo_sum += unspent_transaction[1]
 
             f.close()
