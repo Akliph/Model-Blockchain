@@ -134,7 +134,7 @@ def receive_tx_broadcast():
 def return_utxo():
     print("Utxo request received")
 
-    data = request.get_json()
+    data = request.get_json(force=True)
 
     pprint(data)
 
