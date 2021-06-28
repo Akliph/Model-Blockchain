@@ -31,3 +31,16 @@ If that chain is longer than this one by {x} amount and it is valid, replace the
 If a block receives a new transaction verify it
 If the transaction is not already in the mempool, add it to the mempool
 
+
+
+-- where i left off
+The problem was when I tried to make two separate transactions in a row, the client would scan the blockchain and try
+to use the same confirmed input twice. I tried to fix this by adding a 'confirmed' and 'unconfirmed' mode to the
+utxo endpoint. The latter would return inputs from the mempool as well as the blockchain. Im pretty sure
+(but not certain) that the outputs from the mempool are being removed from what the utxo returns.
+
+Now the utxo does not remove outputs that were on the blockchain but used up in the mempool from the sum.
+
+The solution might just be to check the mempool for identical outputs to a block when a new block is submitted to the
+node... idk
+
