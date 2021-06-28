@@ -569,8 +569,13 @@ def get_utxo(public_key, mode):
 
             f.close()
 
+        for unspent_transaction in unspent_transactions:
+            utxo_sum += unspent_transaction[1]
+
         with open('./mempool/mempool.json') as f:
             data = json.load(f)
+
+            unspent_transactions.clear()
 
             for tx in data:
                 for output in tx['outputs']:
