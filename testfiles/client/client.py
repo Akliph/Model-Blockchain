@@ -406,9 +406,26 @@ if CLIENT_MODE == 'TRANSACT':
     print("[RESPONSE]")
     print(res.text)
 
-print("CURRENT BALANCE: ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(vk.to_string().hex())).json())
+print("CURRENT BALANCE")
+utxo_header['mode'] = 'confirmed'
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
+
+utxo_header['mode'] = 'unconfirmed'
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
+
+
 print("UTXO OF ADDRESS (1): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '1').json())
+utxo_header['pk'] = '1'
+utxo_header['mode'] = 'confirmed'
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json()['sum'])
+
+utxo_header['mode'] = 'unconfirmed'
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json()['sum'])
+
 print("UTXO OF ADDRESS (2): ")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", '2').json())
+utxo_header['pk'] = '2'
+utxo_header['mode'] = 'confirmed'
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json()['sum'])
+
+utxo_header['mode'] = 'unconfirmed'
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json()['sum'])

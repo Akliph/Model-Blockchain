@@ -135,10 +135,10 @@ def return_utxo():
     data = request.get_json()
 
     if type(data) is not dict:
-        return f"Data must be type [{dict} but it was [{type(data)}]]"
+        return f"Data must be type [{dict} but it was [{type(data)}]]", 400
 
     if 'pk' not in list(data.keys()) or 'mode' not in list(data.keys()):
-        return f"Data must contain 2 keys: ['pk']: (public key) and ['mode']: 'confirmed' or 'unconfirmed'"
+        return f"Data must contain 2 keys: ['pk']: (public key) and ['mode']: 'confirmed' or 'unconfirmed'", 400
 
     pk = str(data['pk'])
     mode = str(data['mode'])
