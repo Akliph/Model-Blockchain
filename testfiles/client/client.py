@@ -359,11 +359,11 @@ if CLIENT_MODE == 'TRANSACT':
         output_value = None
         output_receiver = None
 
-        while type(output_value) is not int:
+        while type(output_value) is not float:
             try:
-                output_value = int(input("Enter the value of this output as a whole number: "))
+                output_value = float(input("Enter the value of this output up to the hundredths place: "))
             except:
-                print("Enter a whole number...")
+                print("Enter a number...")
                 continue
 
             output_receiver = str(input("Enter the recipient's address: "))
