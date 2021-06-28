@@ -330,9 +330,9 @@ utxo_header = {
 }
 
 print("UTXO OF THIS CLIENT IS...")
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 while CLIENT_MODE not in ['MINE', 'TRANSACT', 'CANCEL']:
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
