@@ -12,7 +12,7 @@ from hashlib import sha256
 from pprint import pprint
 from uuid import uuid4
 
-NODE_URL = 'http://127.0.0.1:1337/'
+NODE_URL = 'http://192.168.1.243:1337/'
 CLIENT_MODE = ''
 TRANSACTION_GOAL = 10
 
@@ -330,9 +330,9 @@ utxo_header = {
 }
 
 print("UTXO OF THIS CLIENT IS...")
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[CONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[UNCONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 while CLIENT_MODE not in ['MINE', 'TRANSACT', 'CANCEL']:
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
@@ -408,24 +408,24 @@ if CLIENT_MODE == 'TRANSACT':
 
 print("CURRENT BALANCE")
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[CONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[UNCONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 
 print("UTXO OF ADDRESS (1): ")
 utxo_header['pk'] = '1'
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[CONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[UNCONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 print("UTXO OF ADDRESS (2): ")
 utxo_header['pk'] = '2'
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[CONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
+print("[UNCONFIRMED] ", requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
