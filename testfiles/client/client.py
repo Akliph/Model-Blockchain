@@ -330,9 +330,9 @@ utxo_header = {
 }
 
 print("UTXO OF THIS CLIENT IS...")
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 while CLIENT_MODE not in ['MINE', 'TRANSACT', 'CANCEL']:
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
@@ -408,24 +408,24 @@ if CLIENT_MODE == 'TRANSACT':
 
 print("CURRENT BALANCE")
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json())
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 
 print("UTXO OF ADDRESS (1): ")
 utxo_header['pk'] = '1'
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json()['sum'])
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json()['sum'])
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 print("UTXO OF ADDRESS (2): ")
 utxo_header['pk'] = '2'
 utxo_header['mode'] = 'confirmed'
-print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json()['sum'])
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
 
 utxo_header['mode'] = 'unconfirmed'
-print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).json()['sum'])
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", json.dumps(utxo_header)).text)
