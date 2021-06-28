@@ -132,7 +132,11 @@ def receive_tx_broadcast():
 # Responds with list of UTXO
 @app.route('/node/chain/utxo', methods=['POST'])
 def return_utxo():
+    print("Utxo request received")
+
     data = request.get_json()
+
+    pprint(data)
 
     if type(data) is not dict:
         return f"Data must be type [{dict} but it was [{type(data)}]]", 400
