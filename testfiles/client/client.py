@@ -73,10 +73,11 @@ def create_transaction(outputs, fee):
     # Find and store utxo of this client's pk
     # Get unconfirmed UTXO so that no inputs already used in the mempool are added
     utxo_header = {
-        ''
+        'pk': vk.to_string().hex(),
+        'mode': 'unconfirmed'
     }
 
-    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', vk.to_string().hex()).json()
+    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', utxo_header).json()
     print("UTXO of this key")
     pprint(utxo)
 
