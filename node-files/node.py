@@ -222,9 +222,15 @@ def verify_transaction(transaction_dict):
 
     # Outputs validation
     for tx_output in transaction_dict['outputs']:
-        # If an output value is less than 1 raise error
+        # If an output value is less than 1 return error
         if tx_output['value'] < 1:
             return f"Output {tx_output} cannot have a value of less than 1"
+
+        # If an output has more than 2 decimal places raise and error
+        if '.' in str(tx_output['value']):
+            if len(str(tx_output['value'])[str(tx_output).index('.') + 1:]) > 2:
+                return f"Value in output {tx_output} should be up to 2 decimal places long, " \
+                       f"but it was {len(str(tx_output['value'])[str(tx_output).index('.') + 1:])}"
 
         output_sum += tx_output['value']
 
@@ -501,6 +507,10 @@ def get_node_parameters():
 
 # Find UTXO of public key on blockchain
 def get_utxo(public_key):
+    # Valid type check
+    if type(public_key) is not str:
+        return f"Public key must be type [{str}] but got [{type(public_key)}]"
+
     unspent_transactions = []
     utxo_sum = 0
 

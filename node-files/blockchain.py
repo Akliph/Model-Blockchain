@@ -3,6 +3,9 @@ Blockchain.py is meant to parse, read, and write data to the blockchain director
 internal logic here than in Node.py. It will use only Node.py as an entry point, there will be no data
 validation here. Information about the blockchain can be easily returned via functions in this file:
 Blocks in total, transactions in block, transactions in total, etc.
+
+An important role this module has is to define and return template transactions, coinbase transactions, and blocks.
+What ever data types are set in the template are the ones the nodes will use to verify further incoming data
 """
 
 from datetime import datetime
@@ -113,7 +116,7 @@ def get_transaction_template():
     tx_data['locktime'] = 0.0
     tx_data['inputs'][0]['previous_output'] = []
     tx_data['inputs'][0]['signature_script'] = ''
-    tx_data['outputs'][0]['value'] = 0
+    tx_data['outputs'][0]['value'] = 0.0
     tx_data['outputs'][0]['pk_script'] = ''
     tx_data['user_data']['pk'] = ''
     tx_data['user_data']['signature'] = 0
@@ -129,7 +132,7 @@ def get_coinbase_template():
     coinbase_data['locktime'] = 0.0
     coinbase_data['inputs'][0]['previous_output'] = ['COINBASE']
     coinbase_data['inputs'][0]['signature_script'] = ''
-    coinbase_data['outputs'][0]['value'] = 0
+    coinbase_data['outputs'][0]['value'] = 0.0
     coinbase_data['outputs'][0]['pk_script'] = ''
 
     return coinbase_data

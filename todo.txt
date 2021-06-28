@@ -6,6 +6,10 @@ Have blocks contain information about how long they took to mine
 Have the coin round up to the nearest hundredth so that fractions of coins can be used
 
 NODE--
+--FRACTIONAL OUTPUT VALUES
+Output values can be a decimal up to the hundredths place
+If it has more places than that, deny the transaction
+
 --INITIALIZATION INTO THE NETWORK
 Have an initialization phase where a node requests the blockchain from another known node and verifies the whole thing
 Have the node request all known nodes from that node

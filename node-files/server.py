@@ -93,7 +93,7 @@ def return_node_parameters():
 def submit_to_blockchain():
     res = node.add_to_blockchain(request.get_json(force=True))
 
-    if res != None:
+    if res is not None:
         return res, 400
     else:
         return 'valid', 200
@@ -107,7 +107,7 @@ def submit_to_mempool():
     data = request.get_json(force=True)
     res = node.add_to_mempool(data)
 
-    if res != None:
+    if res is not None:
         return res, 400
     else:
         return 'valid', 200
