@@ -143,7 +143,7 @@ def return_utxo():
     pk = str(data['pk'])
     mode = str(data['mode'])
 
-    return node.get_utxo(), 200
+    return node.get_utxo(pk, mode), 200
 
 
 if __name__ == "__main__":
