@@ -506,37 +506,92 @@ def get_node_parameters():
 
 
 # Find UTXO of public key on blockchain
-def get_utxo(public_key):
+def get_utxo(public_key, mode):
     # Valid type check
     if type(public_key) is not str:
         return f"Public key must be type [{str}] but got [{type(public_key)}]"
 
+    if mode not in ['confirmed', 'unconfirmed']:
+        return "['mode'] must be equal to ['confirmed'], or ['unconfirmed']"
+
     unspent_transactions = []
     utxo_sum = 0
 
-    with open('./blockchain/blockchain.json') as f:
-        data = json.load(f)
+    # Check just the blockchain
+    if mode == 'confirmed':
+        with open('./blockchain/blockchain.json') as f:
+            data = json.load(f)
 
-        for block in data:
-            for tx in block['transactions']:
-                # For every transaction output, if it is addressed to this public key, add it to the list
-                for output in tx['outputs']:
-                    tx_output_sum = 0
-                    if output['pk_script'] == public_key:
-                        unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
-                                                     tx['outputs'].index(output)], output['value']))
+            for block in data:
+                for tx in block['transactions']:
+                    # For every transaction output, if it is addressed to this public key, add it to the list
+                    for output in tx['outputs']:
+                        tx_output_sum = 0
+                        if output['pk_script'] == public_key:
+                            unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
+                                                          tx['outputs'].index(output)], output['value']))
 
-                # For every transaction input, if it already exists on the blockchain and it is in the list, then
-                # remove it from the list
-                for tx_input in tx['inputs']:
-                    for unspent_transaction in unspent_transactions:
-                        if tx_input['previous_output'] == unspent_transaction[0]:
-                            unspent_transactions.remove(unspent_transaction)
+                    # For every transaction input, if it already exists on the blockchain and it is in the list, then
+                    # remove it from the list
+                    for tx_input in tx['inputs']:
+                        for unspent_transaction in unspent_transactions:
+                            if tx_input['previous_output'] == unspent_transaction[0]:
+                                unspent_transactions.remove(unspent_transaction)
 
-        for unspent_transaction in unspent_transactions:
-            utxo_sum += unspent_transaction[1]
+            for unspent_transaction in unspent_transactions:
+                utxo_sum += unspent_transaction[1]
 
-        f.close()
+            f.close()
+
+    # Check the mempool and the blockchain
+    elif mode == 'unconfirmed':
+        with open('./blockchain/blockchain.json') as f:
+            data = json.load(f)
+
+            for block in data:
+                for tx in block['transactions']:
+                    # For every transaction output, if it is addressed to this public key, add it to the list
+                    for output in tx['outputs']:
+                        tx_output_sum = 0
+                        if output['pk_script'] == public_key:
+                            unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
+                                                         tx['outputs'].index(output)], output['value']))
+
+                    # For every transaction input, if it already exists on the blockchain and it is in the list, then
+                    # remove it from the list
+                    for tx_input in tx['inputs']:
+                        for unspent_transaction in unspent_transactions:
+                            if tx_input['previous_output'] == unspent_transaction[0]:
+                                unspent_transactions.remove(unspent_transaction)
+
+            for unspent_transaction in unspent_transactions:
+                utxo_sum += unspent_transaction[1]
+
+            f.close()
+
+        with open('./mempool/mempool.json') as f:
+            data = json.load(f)
+
+            for block in data:
+                for tx in block['transactions']:
+                    # For every transaction output, if it is addressed to this public key, add it to the list
+                    for output in tx['outputs']:
+                        tx_output_sum = 0
+                        if output['pk_script'] == public_key:
+                            unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
+                                                          tx['outputs'].index(output)], output['value']))
+
+                    # For every transaction input, if it already exists on the blockchain and it is in the list, then
+                    # remove it from the list
+                    for tx_input in tx['inputs']:
+                        for unspent_transaction in unspent_transactions:
+                            if tx_input['previous_output'] == unspent_transaction[0]:
+                                unspent_transactions.remove(unspent_transaction)
+
+            for unspent_transaction in unspent_transactions:
+                utxo_sum += unspent_transaction[1]
+
+            f.close()
 
     utxo_dict = {
         'transactions': unspent_transactions,

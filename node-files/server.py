@@ -132,7 +132,11 @@ def receive_tx_broadcast():
 # Responds with list of UTXO
 @app.route('/node/chain/utxo', methods=['POST'])
 def return_utxo():
-    return node.get_utxo(request.get_data().decode()), 200
+    data = request.get_json()
+    pk = data['pk']
+    mode = data['mode']
+
+    return node.get_utxo(), 200
 
 
 if __name__ == "__main__":
