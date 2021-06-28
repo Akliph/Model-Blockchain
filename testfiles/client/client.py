@@ -77,7 +77,7 @@ def create_transaction(outputs, fee):
         'mode': 'unconfirmed'
     }
 
-    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', utxo_header).json()
+    utxo = requests.post(f'{NODE_URL}/node/chain/utxo', json.dumps(utxo_header)).json()
     print("UTXO of this key")
     pprint(utxo)
 
