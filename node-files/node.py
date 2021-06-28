@@ -572,14 +572,12 @@ def get_utxo(public_key, mode):
         with open('./mempool/mempool.json') as f:
             data = json.load(f)
 
-            for block in data:
-                for tx in block['transactions']:
-                    # For every transaction output, if it is addressed to this public key, add it to the list
-                    for output in tx['outputs']:
-                        tx_output_sum = 0
-                        if output['pk_script'] == public_key:
-                            unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
-                                                          tx['outputs'].index(output)], output['value']))
+            for tx in data:
+                for output in tx['outputs']:
+                    tx_output_sum = 0
+                    if output['pk_script'] == public_key:
+                        unspent_transactions.append(([data.index(block), block['transactions'].index(tx),
+                                                      tx['outputs'].index(output)], output['value']))
 
                     # For every transaction input, if it already exists on the blockchain and it is in the list, then
                     # remove it from the list
