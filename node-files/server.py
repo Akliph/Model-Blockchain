@@ -133,8 +133,15 @@ def receive_tx_broadcast():
 @app.route('/node/chain/utxo', methods=['POST'])
 def return_utxo():
     data = request.get_json()
-    pk = data['pk']
-    mode = data['mode']
+
+    if type(data) is not dict:
+        return f"Data must be type [{dict} but it was [{type(data)}]]"
+
+    if 'pk' not in list(data.keys()) or 'mode' not in list(data.keys()):
+        return f"Data must contain 2 keys: ['pk']: (public key) and ['mode']: 'confirmed' or 'unconfirmed'"
+
+    pk = str(data['pk'])
+    mode = str(data['mode'])
 
     return node.get_utxo(), 200
 

@@ -71,6 +71,11 @@ Transaction Submission
 def create_transaction(outputs, fee):
     # output = [value, pk]
     # Find and store utxo of this client's pk
+    # Get unconfirmed UTXO so that no inputs already used in the mempool are added
+    utxo_header = {
+        ''
+    }
+
     utxo = requests.post(f'{NODE_URL}/node/chain/utxo', vk.to_string().hex()).json()
     print("UTXO of this key")
     pprint(utxo)
@@ -318,8 +323,15 @@ def hash_transaction(transaction):
 
 initialize()
 
+utxo_header = {
+    'pk': str(vk.to_string().hex()),
+    'mode': 'confirmed'
+}
+
 print("UTXO OF THIS CLIENT IS...")
-print(requests.post(f"{NODE_URL}/node/chain/utxo", str(vk.to_string().hex())).json())
+print("[CONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
+utxo_header['mode'] = 'unconfirmed'
+print("[UNCONFIRMED] " + requests.post(f"{NODE_URL}/node/chain/utxo", utxo_header).json())
 
 while CLIENT_MODE not in ['MINE', 'TRANSACT', 'CANCEL']:
     CLIENT_MODE = str(input("Choose client mode: [TRANSACT/MINE] "))
