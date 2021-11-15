@@ -1,11 +1,12 @@
 # Model-Blockchain
-A small model proof-of-work blockchain which will be based on python-flask running a full node with a RESTful API. 
+A small model proof-of-work blockchain which is run on a RESTful API python-flask server. Each server will act as a full node and propagate information sumbitted to it to its peers. The goal is to have this blockchain be an immutable data structure shared between all of the servers (nodes) and be verified by proof of work.  
 
 This blockchain is mostly based on the bitcoin protocol. The main differece being it sends data over HTTP and its definitely not secure. 
 
 # Endpoints
 **Default Port** ```1337```
 
+```Endpoints are subject to change so they're not on the readme yet```
 ```to/be/continued```
 
 # The Timeline of Supply
